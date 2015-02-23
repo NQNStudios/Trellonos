@@ -46,6 +46,6 @@ class Trello(object):
         return self.get_lists(board, filter)[0]
 
     def get_cards(self, list, filter_function = None, fields = None):
-        cards = self.trello.lists.get_cards(list['id'], filter='open', fields = fields)
+        cards = self.trello.lists.get_card(list['id'], filter='open', fields = fields)
         cards = self.__filter(filter_function, cards)
         return cards
