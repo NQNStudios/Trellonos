@@ -1,6 +1,8 @@
 from trello import TrelloApi
 
-NAME_ONLY = [ 'name' ]
+
+NAME_ONLY = ['name']
+
 
 class Trello(object):
     def __init__(self, api_key, token=None):
@@ -17,8 +19,10 @@ class Trello(object):
 
         return new_list
 
-    def get_boards(self, filter_function = None, fields = NAME_ONLY):
-        boards = self.trello.members.get_board(self.member['id'], filter='open', fields = fields)
+    def get_boards(self, filter_function=None, fields=NAME_ONLY):
+        boards = self.trello.members.get_board(self.member['id'],
+                                               filter='open', fields=fields)
+
         boards = self.__filter(filter_function, boards)
         return boards
 
@@ -28,8 +32,9 @@ class Trello(object):
 
         return self.get_boards(filter)[0]
 
-    def get_lists(self, board, filter_function = None, fields = NAME_ONLY):
-        lists = self.trello.boards.get_list(board['id'], filter='open', fields = fields)
+    def get_lists(self, board, filter_function=None, fields=NAME_ONLY):
+        lists = self.trello.boards.get_list(board['id'],
+                                            filter='open', fields=fields)
         lists = self.__filter(filter_function, lists)
         return lists
 
@@ -45,7 +50,8 @@ class Trello(object):
 
         return self.get_lists(board, filter)[0]
 
-    def get_cards(self, list, filter_function = None, fields = None):
-        cards = self.trello.lists.get_card(list['id'], filter='open', fields = fields)
+    def get_cards(self, list, filter_function=None, fields=None):
+        cards = self.trello.lists.get_card(list['id'],
+                                           filter='open', fields=fields)
         cards = self.__filter(filter_function, cards)
         return cards
