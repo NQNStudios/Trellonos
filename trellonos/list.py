@@ -28,6 +28,10 @@ class List(object):
 
                 card.apply_archetype(archetype)
 
+    # List functions
+    def __get_item__(self, index):
+        return self.__cards[index]
+
     # Iterator functions
     def __iter__(self):
         self.__index = 0

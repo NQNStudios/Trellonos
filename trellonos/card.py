@@ -53,17 +53,24 @@ class Card(object):
 
     @property
     def full_description(self):
-        # TODO respect non-archetypal changes to the YAML as persistent!
+        uninherited_yaml_data = {}
+        for key in self.__yaml_data:
+            if key not in self.__inherited_data:
+                uninherited_yaml_data[key] = self.__yaml_data[key]
 
-        return self.description + DIVIDER_LINE + self.__yaml_lines
+        yaml_lines = yaml.dump(uninherited_yaml_data, default_flow_style=False)
+
+        return self.description + DIVIDER_LINE + yaml_lines
 
     @property
     def yaml_data(self):
         return self.__yaml_data
 
     def apply_archetype(self, archetype_card):
+        self.__inherited_data = []
         yaml_data = archetype_card.yaml_data
 
         for key in yaml_data:
             if key not in self.__yaml_data:
                 self.__yaml_data[key] = yaml_data[key]
+                self.__inherited_data.append(key)
