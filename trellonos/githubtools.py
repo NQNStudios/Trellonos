@@ -4,15 +4,17 @@ from github import Github
 class GithubManager(object):
 
     def __init__(self, username, password):
-        self.github = Github(username, password)
+        self.__github = Github(username, password)
+        self.__interface = {
+            'input': {},
+            'output': {}
+        }
 
-    def execute_gist(self, id, filename, gist_globals=None, gist_locals=None):
-        if not gist_globals:
-            gist_globals = globals()
+    def execute_gist(self, id, filename, input):
+        content = self.__github.get_gist(id).files[filename].content
 
-        if not gist_locals:
-            gist_locals = locals()
+        self.__interface['input'] = input
 
-        content = self.github.get_gist(id).files[filename].content
+        exec(content, self.__interface, {})
 
-        exec(content, gist_globals, gist_locals)
+        return self.__interface['output']
