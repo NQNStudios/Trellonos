@@ -8,8 +8,9 @@ TRELLONOS_REGEX = re.compile('^<.+>$')
 
 class Trellonos(object):
 
-    def __init__(self, trello):
+    def __init__(self, trello, github):
         self.__trello = trello
+        self.__github = github
 
         self.__boards = {}
 
@@ -21,3 +22,8 @@ class Trellonos(object):
     @property
     def boards(self):
         return self.__boards
+
+    def process(self):
+        for board_key in self.__boards:
+            board = self.__boards[board_key]
+            board.process(self.__github)

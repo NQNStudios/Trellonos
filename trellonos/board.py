@@ -37,20 +37,27 @@ class Board(object):
     def lists(self):
         return self.__lists
 
-    def get_cards(type_name):
+    def get_cards(self, type_name):
         cards = []
 
-        for tlist in self.__lists:
+        for list_key in self.__lists:
+            tlist = self.__lists[list_key]
             for card in tlist:
                 if type_name == '<All>' or card.type_name == type_name:
                     cards.append(card)
 
         return cards
 
-    def process(self):
+    def process(self, github):
+        # run each processor on its corresponding cards
         for processor in self.__processors:
             type_name = processor.name
 
             yaml_data = processor.yaml_data
 
-        # TODO finish this function
+            gist_id = yaml_data['gist_id']
+            gist_file = yaml_data['gist_file']
+
+            for card in self.get_cards(type_name):
+                input_dict = {'card': card}
+                github.execute_gist(gist_id, gist_file, input_dict)
