@@ -42,6 +42,7 @@ class Card(object):
 
     @property
     def type_name(self):
+        """ The type name of this card (for archetypal inheritance) """
         if 'type' not in self.__yaml_data:
             return None
         else:
@@ -49,10 +50,14 @@ class Card(object):
 
     @property
     def description(self):
+        """ The trimmed description of this card (excluding yaml_data) """
         return self.__card_data['desc']
 
     @property
     def full_description(self):
+        """ The full description of this card including new yaml_data but not
+        inherited yaml_data """
+
         uninherited_yaml_data = {}
         for key in self.__yaml_data:
             if key not in self.__inherited_data:
@@ -67,6 +72,7 @@ class Card(object):
         return self.__yaml_data
 
     def apply_archetype(self, archetype_card):
+        """ Inherit the given archetype's yaml_data """
         self.__inherited_data = []
         yaml_data = archetype_card.yaml_data
 
