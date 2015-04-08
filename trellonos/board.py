@@ -15,31 +15,43 @@ class Board(object):
         self.__archetypes = {}
         self.__processors = {}
 
+        # retrieve lists in the board
         trello_lists = trello.get_lists(trello_board)
 
+        # map lists in a dictionary by name
         for trello_list in trello_lists:
             list_name = trello_list['name']
 
             list_object = List(trello, trello_list)
 
+            # handle meta lists specially
             if re.search(METADATA_REGEX, list_name):
+                # stip <meta tags>
                 list_name = list_name[1:-1]
 
                 if list_name == 'Archetypes':
                     self.__archetypes = list_object
                 elif list_name == 'Processors':
                     self.__processors = list_object
+            # handle regular lists
             else:
+                # apply archetypes to the list children if possible
                 if self.__archetypes:
                     list_object.apply_archetypes(self.__archetypes)
 
+                # map the list
                 self.__lists[list_name] = list_object
+
+    @property
+    def name(self):
+        return self.__board_data['name']
 
     @property
     def lists(self):
         return self.__lists
 
     def get_cards(self, type_name):
+        """ Retrieve the cards from this board given a type name """
         cards = []
 
         for list_key in self.__lists:
@@ -51,7 +63,7 @@ class Board(object):
         return cards
 
     def process(self, github):
-        # run each processor on its corresponding cards
+        """ Run each processor on its corresponding cards """
         for processor in self.__processors:
             type_name = processor.name
 
@@ -60,6 +72,12 @@ class Board(object):
             gist_id = yaml_data['gist_id']
             gist_file = yaml_data['gist_file']
 
-            for card in self.get_cards(type_name):
-                input_dict = {'card': card}
+            # Some processors process the entire board, no specific card type
+            if type_name == '<None>':
+                input_dict = {'board': self}
                 github.execute_gist(gist_id, gist_file, input_dict)
+            # The rest will process individual cards
+            else:
+                for card in self.get_cards(type_name):
+                    input_dict = {'card': card}
+                    github.execute_gist(gist_id, gist_file, input_dict)
