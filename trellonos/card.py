@@ -21,6 +21,7 @@ class Card(object):
 
         for line in string.split(desc, '\n'):
             if re.search(DIVIDER_REGEX, line):
+                # After the yaml divider is discovered, all lines are YAML
                 yaml_line = True
                 continue
 
