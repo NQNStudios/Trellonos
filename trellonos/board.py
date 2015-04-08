@@ -12,6 +12,8 @@ class Board(object):
         self.__board_data = trello_board
 
         self.__lists = {}
+        self.__archetypes = {}
+        self.__processors = {}
 
         trello_lists = trello.get_lists(trello_board)
 

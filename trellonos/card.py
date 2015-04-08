@@ -37,6 +37,9 @@ class Card(object):
         self.__yaml_lines = yaml_lines  # save source yaml for future updates
         self.__yaml_data = yaml.load(yaml_lines)  # parse yaml attributes
 
+        if not self.__yaml_data:
+            self.__yaml_data = {}  # no null yaml data
+
     @property
     def name(self):
         return self.__card_data['name']

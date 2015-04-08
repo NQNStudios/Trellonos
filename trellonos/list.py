@@ -21,15 +21,31 @@ class List(object):
                 return card
 
     def apply_archetypes(self, archetypes):
+        # Retrieve the list default metacard
+        default_card = self.get_card('<Default>')
+
         for card in self.cards:
+            type_name = ''
+
+            # If the card defines a type, use that archetype
             if 'type' in card.yaml_data:
                 type_name = card.yaml_data['type']
-                archetype = archetypes.get_card(type_name)
 
+            # If not, use the list default if it exists
+            elif default_card:
+                print('using a default card')
+                type_name = default_card.yaml_data['type']
+                print(type_name)
+
+            # attempt to retrieve the archetype
+            archetype = archetypes.get_card(type_name)
+
+            # apply it if it exists
+            if archetype:
                 card.apply_archetype(archetype)
 
     # List functions
-    def __get_item__(self, index):
+    def __getitem__(self, index):
         return self.__cards[index]
 
     # Iterator functions
