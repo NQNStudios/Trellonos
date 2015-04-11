@@ -54,9 +54,13 @@ class Board(object):
         """ Retrieve the cards from this board given a type name """
         cards = []
 
+        # Iterate through lists
         for list_key in self.__lists:
             tlist = self.__lists[list_key]
+
+            # For each list, iterate through cards
             for card in tlist:
+                # Add the card if it matches OR if we want all cards
                 if type_name == '<All>' or card.type_name == type_name:
                     cards.append(card)
 
@@ -69,6 +73,7 @@ class Board(object):
 
             yaml_data = processor.yaml_data
 
+            # Retrieve the processor gist
             gist_id = yaml_data['gist_id']
             gist_file = yaml_data['gist_file']
 
