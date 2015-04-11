@@ -7,15 +7,34 @@ class List(object):
         self.__list_data = trello_list
 
         self.__cards = []
+        self.__closed_cards = []
 
         # store contained cards in a list
         for trello_card in trello.get_cards(trello_list):
-            # in Trellonos form
-            self.__cards.append(Card(trello_card))
+            # in trellonos form
+            card = Card(trello_card)
+
+            # separated open/closed
+            if card.open:
+                self.__cards.append(card)
+            else:
+                self.__closed_cards.append(card)
+
+    @property
+    def open(self):
+        return not self.__list_data['closed']
+
+    @property
+    def closed(self):
+        return self.__list_data['closed']
 
     @property
     def cards(self):
         return self.__cards
+
+    @property
+    def closed_cards(self):
+        return self.__closed_cards
 
     def get_card(self, name):
         """ Finds the first card in this list with the given name """
@@ -48,9 +67,7 @@ class List(object):
 
             # If not, use the list default if it exists
             elif default_card:
-                print('using a default card')
                 type_name = default_card.yaml_data['type']
-                print(type_name)
 
             # attempt to retrieve the archetype
             archetype = archetypes.get_card(type_name)

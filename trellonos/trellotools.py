@@ -2,9 +2,12 @@ from trello import TrelloApi
 
 
 FIELDS_NAME_ONLY = ['name']
+FIELDS_DEFAULT = ['name', 'closed']
+
 FILTER_OPEN = 'open'
 FILTER_CLOSED = 'closed'
 FILTER_ALL = 'all'
+FILTER_DEFAULT = FILTER_ALL
 
 
 def filter_by_name_function(name):
@@ -44,8 +47,8 @@ class Trello(object):
 
         return new_list
 
-    def get_boards(self, board_filter=FILTER_OPEN, filter_function=None,
-                   fields=FIELDS_NAME_ONLY):
+    def get_boards(self, board_filter=FILTER_DEFAULT, filter_function=None,
+                   fields=FIELDS_DEFAULT):
         """ Retrieves an optionally filtered list of Trello boards """
 
         boards = self.trello.members.get_board(
@@ -62,8 +65,8 @@ class Trello(object):
 
         return self.get_boards(filter)[0]
 
-    def get_lists(self, board, list_filter=FILTER_OPEN, filter_function=None,
-                  fields=FIELDS_NAME_ONLY):
+    def get_lists(self, board, list_filter=FILTER_DEFAULT, filter_function=None,
+                  fields=FIELDS_DEFAULT):
         """ Retrieves an optionally filtered list of Trello lists """
 
         lists = self.trello.boards.get_list(board['id'],
@@ -87,7 +90,7 @@ class Trello(object):
 
         return self.get_lists(board, filter)[0]
 
-    def get_cards(self, list, card_filter=FILTER_OPEN, filter_function=None,
+    def get_cards(self, list, card_filter=FILTER_DEFAULT, filter_function=None,
                   fields=None):
         """ Retrieves cards from the given list """
 

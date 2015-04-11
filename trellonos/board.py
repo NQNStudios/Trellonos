@@ -7,11 +7,13 @@ METADATA_REGEX = re.compile('^<.+>$')
 
 
 class Board(object):
+    """ Wrapper of a Trello board """
 
     def __init__(self, trello, trello_board):
         self.__board_data = trello_board
 
         self.__lists = {}
+        self.__closed_lists = {}
         self.__archetypes = {}
         self.__processors = {}
 
@@ -25,7 +27,7 @@ class Board(object):
             list_object = List(trello, trello_list)
 
             # handle meta lists specially
-            if re.search(METADATA_REGEX, list_name):
+            if list_object.open and re.search(METADATA_REGEX, list_name):
                 # stip <meta tags>
                 list_name = list_name[1:-1]
 
@@ -40,15 +42,30 @@ class Board(object):
                     list_object.apply_archetypes(self.__archetypes)
 
                 # map the list
-                self.__lists[list_name] = list_object
+                if list_object.open:
+                    self.__lists[list_name] = list_object
+                else:
+                    self.__closed_lists[list_name] = list_object
 
     @property
     def name(self):
         return self.__board_data['name']
 
     @property
+    def open(self):
+        return not self.__board_data['closed']
+
+    @property
+    def closed(self):
+        return self.__board_data['closed']
+
+    @property
     def lists(self):
         return self.__lists
+
+    @property
+    def closed_lists(self):
+        return self.__closed_lists
 
     def get_cards(self, type_name):
         """ Retrieve the cards from this board given a type name """

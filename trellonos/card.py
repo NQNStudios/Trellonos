@@ -8,6 +8,7 @@ DIVIDER_LINE = '---\n'  # splits description plaintext and YAML
 
 
 class Card(object):
+    """ Wrapper of a Trello card """
 
     def __init__(self, trello_card):
         self.__card_data = trello_card
@@ -31,6 +32,7 @@ class Card(object):
                 yaml_lines += line
             else:
                 desc_lines += line
+
         # update description stripped of yaml
         self.__card_data['desc'] = desc_lines
 
@@ -43,6 +45,14 @@ class Card(object):
     @property
     def name(self):
         return self.__card_data['name']
+
+    @property
+    def open(self):
+        return not self.__card_data['closed']
+
+    @property
+    def closed(self):
+        return self.__card_data['closed']
 
     @property
     def type_name(self):
