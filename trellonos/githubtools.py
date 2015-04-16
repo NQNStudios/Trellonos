@@ -6,6 +6,8 @@ class SecurityException(Exception):
 
 
 class GithubManager(object):
+    """ Wrapper for Github operations, specifically the embedded execution of
+    gists """
 
     def __init__(self, username, password):
         self.__github = Github(username, password)

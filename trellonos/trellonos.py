@@ -7,6 +7,7 @@ TRELLONOS_REGEX = re.compile('^<.+>$')
 
 
 class Trellonos(object):
+    """ Top-level container of Trello data and core processor """
 
     def __init__(self, trello, github):
         self.__trello = trello
