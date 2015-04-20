@@ -1,7 +1,10 @@
 #! /bin/bash
 
-SRC_DIR="~/Trellonos/trellonos"
+ROOT_DIR=~/Trellonos
+SRC_DIR=~/Trellonos/trellonos
+
+cd $ROOT_DIR
+source .trellorc
 
 cd $SRC_DIR
-
 python main.py

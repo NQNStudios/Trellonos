@@ -1,6 +1,6 @@
 #! /bin/bash
 
-ROOT_DIR="~/Trellonos"
+ROOT_DIR=~/Trellonos
 
 cd $ROOT_DIR
 

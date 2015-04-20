@@ -56,3 +56,6 @@ target/
 # Vim
 .ropeproject/
 *.swp
+
+# Trellonos
+.trellorc
