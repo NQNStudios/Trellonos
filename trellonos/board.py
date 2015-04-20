@@ -37,15 +37,20 @@ class Board(object):
                     self.__processors = list_object
             # handle regular lists
             else:
-                # apply archetypes to the list children if possible
-                if self.__archetypes:
-                    list_object.apply_archetypes(self.__archetypes)
-
                 # map the list
                 if list_object.open:
                     self.__lists[list_name] = list_object
                 else:
                     self.__closed_lists[list_name] = list_object
+
+        if self.__archetypes:
+            # Apply archetypes to every list
+            for list_key, list_object in self.__lists.iteritems():
+                list_object.apply_archetypes(self.__archetypes)
+
+            # Then to every closed list, for good measure
+            for list_key, list_object in self.__closed_lists.iteritems():
+                list_object.apply_archetypes(self.__archetypes)
 
     @property
     def name(self):
