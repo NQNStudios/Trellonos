@@ -28,6 +28,13 @@ def filter_by_keyword_function(keyword):
     return filter
 
 
+def boolean_to_string(boolean):
+    if boolean:
+        return "true"
+    else:
+        return "false"
+
+
 class Trello(object):
     """ Wrapper of the Trello API """
 
@@ -68,7 +75,8 @@ class Trello(object):
         return self.get_boards(filter)[0]
 
     def update_board_closed(self, board, value):
-        self.__trello.boards.update_closed(board['id'], value)
+        self.__trello.boards.update_closed(board['id'],
+                                           boolean_to_string(value))
 
     # LISTS #
 
@@ -98,7 +106,8 @@ class Trello(object):
         return self.get_lists(board, filter)[0]
 
     def update_list_closed(self, list, value):
-        self.__trello.lists.update_closed(list['id'], value)
+        self.__trello.lists.update_closed(list['id'],
+                                          boolean_to_string(value))
 
     # CARDS #
 
@@ -114,4 +123,5 @@ class Trello(object):
         return cards
 
     def update_card_closed(self, card, value):
-        self.__trello.cards.update_closed(card['id'], value)
+        self.__trello.cards.update_closed(card['id'],
+                                          boolean_to_string(value))
