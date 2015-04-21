@@ -28,6 +28,14 @@ class List(object):
     def closed(self):
         return self.__list_data['closed']
 
+    def archive(self, trello):
+        self.__list_data['closed'] = True
+        trello.update_list_closed(self.__list_data, True)
+
+    def unarchive(self, trello):
+        self.__list_data['closed'] = False
+        trello.update_list_closed(self.__list_data, False)
+
     @property
     def cards(self):
         return self.__cards

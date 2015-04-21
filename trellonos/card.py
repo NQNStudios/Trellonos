@@ -54,6 +54,20 @@ class Card(object):
     def closed(self):
         return self.__card_data['closed']
 
+    def archive(self, trello):
+        # update card data to reflect change
+        self.__card_data['closed'] = True
+
+        # make the change through API call
+        trello.update_card_closed(self.__card_data, True)
+
+    def unarchive(self, trello):
+        # update card data to reflect change
+        self.__card_data['closed'] = False
+
+        # make the change through API call
+        trello.update_card_closed(self.__card_data, False)
+
     @property
     def type_name(self):
         """ The type name of this card (for archetypal inheritance) """

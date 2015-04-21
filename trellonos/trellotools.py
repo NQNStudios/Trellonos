@@ -32,9 +32,9 @@ class Trello(object):
     """ Wrapper of the Trello API """
 
     def __init__(self, api_key, token=None):
-        self.trello = TrelloApi(api_key, token)
+        self.__trello = TrelloApi(api_key, token)
 
-        self.member = self.trello.members.get('me')
+        self.__member = self.__trello.members.get('me')
 
     @staticmethod
     def __filter(filter_function, iterable):
@@ -47,12 +47,14 @@ class Trello(object):
 
         return new_list
 
+    # BOARDS #
+
     def get_boards(self, board_filter=FILTER_DEFAULT, filter_function=None,
                    fields=FIELDS_DEFAULT):
         """ Retrieves an optionally filtered list of Trello boards """
 
-        boards = self.trello.members.get_board(
-            self.member['id'], filter=board_filter, fields=fields)
+        boards = self.__trello.members.get_board(
+            self.__member['id'], filter=board_filter, fields=fields)
 
         boards = self.__filter(filter_function, boards)
 
@@ -65,12 +67,17 @@ class Trello(object):
 
         return self.get_boards(filter)[0]
 
+    def update_board_closed(self, board, value):
+        self.__trello.boards.update_closed(board['id'], value)
+
+    # LISTS #
+
     def get_lists(self, board, list_filter=FILTER_DEFAULT, filter_function=None,
                   fields=FIELDS_DEFAULT):
         """ Retrieves an optionally filtered list of Trello lists """
 
-        lists = self.trello.boards.get_list(board['id'],
-                                            filter=list_filter, fields=fields)
+        lists = self.__trello.boards.get_list(
+            board['id'], filter=list_filter, fields=fields)
 
         lists = self.__filter(filter_function, lists)
         return lists
@@ -90,13 +97,21 @@ class Trello(object):
 
         return self.get_lists(board, filter)[0]
 
+    def update_list_closed(self, list, value):
+        self.__trello.lists.update_closed(list['id'], value)
+
+    # CARDS #
+
     def get_cards(self, list, card_filter=FILTER_DEFAULT, filter_function=None,
                   fields=None):
         """ Retrieves cards from the given list """
 
-        cards = self.trello.lists.get_card(list['id'],
-                                           filter=card_filter, fields=fields)
+        cards = self.__trello.lists.get_card(
+            list['id'], filter=card_filter, fields=fields)
 
         cards = self.__filter(filter_function, cards)
 
         return cards
+
+    def update_card_closed(self, card, value):
+        self.__trello.cards.update_closed(card['id'], value)

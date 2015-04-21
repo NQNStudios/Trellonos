@@ -65,6 +65,14 @@ class Board(object):
     def closed(self):
         return self.__board_data['closed']
 
+    def archive(self, trello):
+        self.__board_data['closed'] = True
+        trello.update_board_closed(self.__board_data, True)
+
+    def unarchive(self, trello):
+        self.__board_data['closed'] = False
+        trello.update_board_closed(self.__board_data, False)
+
     @property
     def lists(self):
         return self.__lists
