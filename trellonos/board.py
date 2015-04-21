@@ -10,6 +10,7 @@ class Board(object):
     """ Wrapper of a Trello board """
 
     def __init__(self, trello, trello_board):
+        self.__trello = trello
         self.__board_data = trello_board
 
         self.__lists = {}
@@ -101,10 +102,10 @@ class Board(object):
 
             # Some processors process the entire board, no specific card type
             if type_name == '<None>':
-                input_dict = {'board': self}
+                input_dict = {'board': self, 'trello': self.__trello}
                 github.execute_gist(gist_id, gist_file, input_dict)
             # The rest will process individual cards
             else:
                 for card in self.get_cards(type_name):
-                    input_dict = {'card': card}
+                    input_dict = {'card': card, 'trello': self.__trello}
                     github.execute_gist(gist_id, gist_file, input_dict)
