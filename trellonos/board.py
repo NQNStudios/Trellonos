@@ -4,22 +4,77 @@ from list import List
 
 
 METADATA_REGEX = re.compile('^<.+>$')
+SPECIAL_META_LISTS = {
+    'Archetypes': '__archetypes',
+    'Board Processors': '__board_processors',
+    'List Processors': '__list_processors',
+    'List Defaults': '__list_defaults',
+    'Card Processors': '__card_processors'
+}
+
+
+def execute_processor(github, processor, input):
+    yaml_data = processor.yaml_data
+
+    gist_id = yaml_data['gist_id']
+    gist_file = yaml_data['gist_file']
+
+    github.execute_gist(gist_id, gist_file, input)
 
 
 class Board(object):
     """ Wrapper of a Trello board """
 
-    def __init__(self, trello, trello_board):
+    def __init__(self, trello, trello_board, meta_board):
         self.__trello = trello
         self.__board_data = trello_board
+        self.__meta_board = meta_board
 
         self.__lists = {}
         self.__closed_lists = {}
+
+        self.__meta_lists = {}
+
         self.__archetypes = {}
-        self.__processors = {}
+        self.__board_processors = {}
+        self.__list_processors = {}
+        self.__card_processors = {}
+        self.__list_defaults = {}
 
         # retrieve lists in the board
         trello_lists = trello.get_lists(trello_board)
+        meta_lists = trello.get_lists(meta_board)
+
+        # First retrieve meta lists
+        for meta_list in meta_lists:
+            list_name = meta_list['name']
+
+            meta_list_object = List(trello, meta_list)
+
+            # handle special meta lists
+            if meta_list_object.open and re.search(METADATA_REGEX, list_name):
+                # strip <meta tags>
+                list_name = list_name[1:-1]
+
+                # TODO make this clean with setattr() or exec()
+                if list_name == "Archetypes":
+                    self.__archetypes = meta_list_object
+                elif list_name == "Board Processors":
+                    self.__board_processors = meta_list_object
+                elif list_name == "List Processors":
+                    self.__list_processors = meta_list_object
+                elif list_name == "List Defaults":
+                    self.__list_defaults = meta_list_object
+                elif list_name == "Card Processors":
+                    self.__card_processors = meta_list_object
+
+
+            # handle regular meta lists
+            elif meta_list_object.open:
+                # map the list
+                self.__meta_lists[list_name] = meta_list_object
+
+            # closed meta lists will be discarded altogether!
 
         # map lists in a dictionary by name
         for trello_list in trello_lists:
@@ -27,31 +82,19 @@ class Board(object):
 
             list_object = List(trello, trello_list)
 
-            # handle meta lists specially
-            if list_object.open and re.search(METADATA_REGEX, list_name):
-                # stip <meta tags>
-                list_name = list_name[1:-1]
+            # if archetypes are defined, apply them to this list
+            if self.__archetypes:
+                list_object.apply_archetypes(self.__archetypes)
 
-                if list_name == 'Archetypes':
-                    self.__archetypes = list_object
-                elif list_name == 'Processors':
-                    self.__processors = list_object
-            # handle regular lists
+            # map the list by name
+            if list_object.open:
+                self.__lists[list_name] = list_object
             else:
-                # map the list
-                if list_object.open:
-                    self.__lists[list_name] = list_object
-                else:
-                    self.__closed_lists[list_name] = list_object
+                self.__closed_lists[list_name] = list_object
 
-        if self.__archetypes:
-            # Apply archetypes to every list
-            for list_key, list_object in self.__lists.iteritems():
-                list_object.apply_archetypes(self.__archetypes)
-
-            # Then to every closed list, for good measure
-            for list_key, list_object in self.__closed_lists.iteritems():
-                list_object.apply_archetypes(self.__archetypes)
+    @property
+    def num_list_processors(self):
+        return len(self.__list_processors.cards)
 
     @property
     def name(self):
@@ -81,6 +124,10 @@ class Board(object):
     def closed_lists(self):
         return self.__closed_lists
 
+    @property
+    def meta_lists(self):
+        return self.__meta_lists
+
     def get_cards(self, type_name):
         """ Retrieve the cards from this board given a type name """
         cards = []
@@ -98,22 +145,37 @@ class Board(object):
         return cards
 
     def process(self, github):
-        """ Run each processor on its corresponding cards """
-        for processor in self.__processors:
-            type_name = processor.name
+        """ Run each of this board's many types of processors """
 
-            yaml_data = processor.yaml_data
+        # first, processors of the whole board
+        for board_processor in self.__board_processors:
+            print("running board processor " + board_processor.name)
 
-            # Retrieve the processor gist
-            gist_id = yaml_data['gist_id']
-            gist_file = yaml_data['gist_file']
+            # send the board as an argument, and trello wrapper
+            input_dict = {'board': self, 'trello': self.__trello}
 
-            # Some processors process the entire board, no specific card type
-            if type_name == '<None>':
-                input_dict = {'board': self, 'trello': self.__trello}
-                github.execute_gist(gist_id, gist_file, input_dict)
-            # The rest will process individual cards
-            else:
-                for card in self.get_cards(type_name):
-                    input_dict = {'card': card, 'trello': self.__trello}
-                    github.execute_gist(gist_id, gist_file, input_dict)
+            # execute the board processor
+            execute_processor(github, board_processor, input_dict)
+
+        # Then list processors
+        for list_processor in self.__list_processors:
+            list_name = list_processor.name
+            print("running board processor " + list_name)
+
+            input_list = self.__lists[list_name]
+
+            # Pass the list with the same name as an argument
+            input_dict = {'list': input_list, 'trello': self.__trello}
+            execute_processor(github, list_processor, input_dict)
+
+        # Then card processors
+        for card_processor in self.__card_processors:
+            type_name = card_processor.name
+            print("running card processor " + type_name)
+
+            # process all cards of the given type name individually
+            cards = self.get_cards(type_name)
+
+            for card in cards:
+                input_dict = {'card': card, 'trello': self.__trello}
+                execute_processor(github, card_processor, input_dict)
