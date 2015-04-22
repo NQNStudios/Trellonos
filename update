@@ -1,7 +1,11 @@
 #! /bin/bash
 
+echo "Beginning to update Trellonos"
+
 ROOT_DIR=~/Trellonos
 
 cd $ROOT_DIR
 
 git pull
+
+echo "Done updating Trellonos"
