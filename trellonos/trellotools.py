@@ -1,4 +1,5 @@
 from trello import TrelloApi
+import requests
 
 
 FILTER_OPEN = 'open'
@@ -6,6 +7,8 @@ FILTER_CLOSED = 'closed'
 FILTER_ALL = 'all'
 FILTER_DEFAULT = FILTER_ALL
 
+
+# FILTER FUNCTIONS
 
 def filter_by_name_function(name):
     """ Creates a filter function to filter objects by name """
@@ -24,6 +27,8 @@ def filter_by_keyword_function(keyword):
 
     return filter
 
+# CONVENIENCE CONVERSION FUNCTIONS
+
 
 def boolean_to_string(boolean):
     if boolean:
@@ -36,8 +41,14 @@ class Trello(object):
     """ Wrapper of the Trello API """
 
     def __init__(self, api_key, token=None):
+        # Store the API key and token for things the Python API can't do
+        self.__api_key = api_key
+        self.__token = token
+
+        # Make a Trello Python API wrapper object for the things it CAN do
         self.__trello = TrelloApi(api_key, token)
 
+        # Retrieve this Trello user
         self.__member = self.__trello.members.get('me')
 
     @staticmethod
@@ -50,6 +61,22 @@ class Trello(object):
             new_list = filter(filter_function, new_list)
 
         return new_list
+
+    # REQUESTS HELPERS #
+
+    def request_params(self, extra_params={}):
+
+        # Add the authentification params
+        params = {
+            'key': self.__api_key,
+            'token': self.__token
+        }
+
+        # Add the given params
+        for param in extra_params:
+            params[param] = extra_params[param]
+
+        return params
 
     # BOARDS #
 

@@ -28,6 +28,10 @@ class List(object):
     def closed(self):
         return self.__list_data['closed']
 
+    @property
+    def position(self):
+        return self.__list_data['pos']
+
     def archive(self, trello):
         self.__list_data['closed'] = True
         trello.update_list_closed(self.__list_data, True)
