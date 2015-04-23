@@ -128,6 +128,11 @@ class Board(object):
     def meta_lists(self):
         return self.__meta_lists
 
+    def create_list(self, name):
+        """ Creates a list in this board but does not add it to Trellonos """
+
+        self.__trello.create_list(self.__board_data, name)
+
     def get_cards(self, type_name):
         """ Retrieve the cards from this board given a type name """
         cards = []
@@ -156,17 +161,19 @@ class Board(object):
 
             # execute the board processor
             execute_processor(github, board_processor, input_dict)
+            print("done running board processor " + board_processor.name)
 
         # Then list processors
         for list_processor in self.__list_processors:
             list_name = list_processor.name
-            print("running board processor " + list_name)
+            print("running list processor " + list_name)
 
             input_list = self.__lists[list_name]
 
             # Pass the list with the same name as an argument
             input_dict = {'list': input_list, 'trello': self.__trello}
             execute_processor(github, list_processor, input_dict)
+            print("done running list processor " + list_name)
 
         # Then card processors
         for card_processor in self.__card_processors:
@@ -179,3 +186,5 @@ class Board(object):
             for card in cards:
                 input_dict = {'card': card, 'trello': self.__trello}
                 execute_processor(github, card_processor, input_dict)
+
+            print("done running card processor " + type_name)

@@ -1,9 +1,6 @@
 from trello import TrelloApi
 
 
-FIELDS_NAME_ONLY = ['name']
-FIELDS_DEFAULT = ['name', 'closed']
-
 FILTER_OPEN = 'open'
 FILTER_CLOSED = 'closed'
 FILTER_ALL = 'all'
@@ -56,12 +53,11 @@ class Trello(object):
 
     # BOARDS #
 
-    def get_boards(self, board_filter=FILTER_DEFAULT, filter_function=None,
-                   fields=FIELDS_DEFAULT):
+    def get_boards(self, board_filter=FILTER_DEFAULT, filter_function=None):
         """ Retrieves an optionally filtered list of Trello boards """
 
         boards = self.__trello.members.get_board(
-            self.__member['id'], filter=board_filter, fields=fields)
+            self.__member['id'], filter=board_filter)
 
         boards = self.__filter(filter_function, boards)
 
@@ -80,12 +76,11 @@ class Trello(object):
 
     # LISTS #
 
-    def get_lists(self, board, list_filter=FILTER_DEFAULT, filter_function=None,
-                  fields=FIELDS_DEFAULT):
+    def get_lists(self, board, list_filter=FILTER_DEFAULT,
+                  filter_function=None):
         """ Retrieves an optionally filtered list of Trello lists """
 
-        lists = self.__trello.boards.get_list(
-            board['id'], filter=list_filter, fields=fields)
+        lists = self.__trello.boards.get_list(board['id'], filter=list_filter)
 
         lists = self.__filter(filter_function, lists)
         return lists
@@ -106,8 +101,13 @@ class Trello(object):
         return self.get_lists(board, filter)[0]
 
     def update_list_closed(self, list, value):
+        """ Opens or closes a list """
         self.__trello.lists.update_closed(list['id'],
                                           boolean_to_string(value))
+
+    def create_list(self, board, list_name):
+        """ Creates a new list in the given board """
+        self.__trello.boards.new_list(board['id'], list_name)
 
     # CARDS #
 
