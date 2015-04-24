@@ -134,7 +134,7 @@ class Trello(object):
 
     def create_list(self, board, list_name):
         """ Creates a new list in the given board """
-        self.__trello.boards.new_list(board['id'], list_name)
+        return self.__trello.boards.new_list(board['id'], list_name)
 
     # CARDS #
 

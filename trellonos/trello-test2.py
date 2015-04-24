@@ -19,4 +19,7 @@ github = GithubManager(username, password)
 # Construct a Trellonos object using this components
 trellonos = Trellonos(trello, github)
 
-#trellonos.boards['Planner'].lists['Daily Chores'].cards[0].archive()
+board = trellonos.boards['Planner']
+board.create_list("Test")
+
+print(board.lists['Test'])

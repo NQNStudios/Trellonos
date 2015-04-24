@@ -131,7 +131,9 @@ class Board(object):
     def create_list(self, name):
         """ Creates a list in this board but does not add it to Trellonos """
 
-        self.__trello.create_list(self.__board_data, name)
+        trello_list = self.__trello.create_list(self.__board_data, name)
+
+        self.__lists[name] = List(self.__trello, trello_list)
 
     def get_cards(self, type_name):
         """ Retrieve the cards from this board given a type name """
