@@ -2,8 +2,8 @@
 
 echo "Beginning to run Trellonos"
 
-ROOT_DIR=~/Trellonos
-SRC_DIR=~/Trellonos/trellonos
+ROOT_DIR=./
+SRC_DIR=$ROOT_DIR/trellonos
 
 cd $ROOT_DIR
 source .trellorc

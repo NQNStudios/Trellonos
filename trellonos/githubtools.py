@@ -21,6 +21,8 @@ class GithubManager(object):
     def execute_gist(self, id, filename, input={}):
         """ Run the Python code contained in the given gist file """
 
+        print('Running gist ' + filename)
+
         gist = self.__github.get_gist(id)
 
         if gist.public:

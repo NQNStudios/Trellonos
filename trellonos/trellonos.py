@@ -37,7 +37,6 @@ class Trellonos(object):
             meta_board = meta_boards[board_name]
 
             board_object = Board(trello, normal_board, meta_board)
-            print(board_object.num_list_processors)
 
             self.__boards[board_name] = board_object
 

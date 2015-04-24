@@ -13,24 +13,6 @@ SPECIAL_META_LISTS = {
 }
 
 
-def execute_processor(github, processor, input):
-    """ Executes a board/list/card processor using the yaml data in the
-    card which defines it """
-
-    yaml_data = processor.yaml_data
-
-    gist_id = yaml_data['gist_id']
-    gist_file = yaml_data['gist_file']
-
-    # Pass all yaml data as input, including gist_id and gist_file
-    # Although they will rarely be used, there's no harm in it
-    for field in yaml_data:
-        if field not in input:  # of course, avoid overwrite error
-            input[field] = yaml_data[field]
-
-    github.execute_gist(gist_id, gist_file, input)
-
-
 class Board(object):
     """ Wrapper of a Trello board """
 
@@ -169,6 +151,27 @@ class Board(object):
 
         return cards
 
+    def execute_processor(self, github, processor, input):
+        """ Executes a board/list/card processor using the yaml data in the
+        card which defines it """
+
+        yaml_data = processor.yaml_data
+
+        gist_id = yaml_data['gist_id']
+        gist_file = yaml_data['gist_file']
+
+        # Pass all yaml data as input, including gist_id and gist_file
+        # Although they will rarely be used, there's no harm in it
+        for field in yaml_data:
+            if field not in input:  # of course, avoid overwrite error
+                input[field] = yaml_data[field]
+
+        # Pass the GithubManager into the processor as input
+        input['github'] = github
+
+        # Return the output dictionary
+        return github.execute_gist(gist_id, gist_file, input)
+
     def process(self, github):
         """ Run each of this board's many types of processors """
 
@@ -180,7 +183,7 @@ class Board(object):
             input_dict = {'board': self, 'trello': self.__trello}
 
             # execute the board processor
-            execute_processor(github, board_processor, input_dict)
+            self.execute_processor(github, board_processor, input_dict)
             print("done running board processor " + board_processor.name)
 
         # Then list processors
@@ -192,7 +195,7 @@ class Board(object):
 
             # Pass the list with the same name as an argument
             input_dict = {'list': input_list, 'trello': self.__trello}
-            execute_processor(github, list_processor, input_dict)
+            self.execute_processor(github, list_processor, input_dict)
             print("done running list processor " + list_name)
 
         # Then card processors
@@ -205,6 +208,6 @@ class Board(object):
 
             for card in cards:
                 input_dict = {'card': card, 'trello': self.__trello}
-                execute_processor(github, card_processor, input_dict)
+                self.execute_processor(github, card_processor, input_dict)
 
             print("done running card processor " + type_name)
