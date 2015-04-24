@@ -1,6 +1,8 @@
 from trello import TrelloApi
 import requests
 
+API_VERSION = '1'
+BASE_URL = 'https://api.trello.com/' + API_VERSION + '/'
 
 FILTER_OPEN = 'open'
 FILTER_CLOSED = 'closed'
@@ -65,6 +67,8 @@ class Trello(object):
     # REQUESTS HELPERS #
 
     def request_params(self, extra_params={}):
+        """ Generates the params dictionary for a trello HTTP request of the
+        given parameters. """
 
         # Add the authentification params
         params = {
@@ -135,6 +139,13 @@ class Trello(object):
     def create_list(self, board, list_name):
         """ Creates a new list in the given board """
         return self.__trello.boards.new_list(board['id'], list_name)
+
+    def sort_list(self, list, position):
+        """ Sorts the given list to the given position. Position can be
+        'top' or 'bottom' or a positive number """
+
+        url = BASE_URL + 'lists/' + list['id'] + '/pos'
+        requests.put(url, params=self.request_params({'value': position}))
 
     # CARDS #
 

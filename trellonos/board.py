@@ -14,10 +14,19 @@ SPECIAL_META_LISTS = {
 
 
 def execute_processor(github, processor, input):
+    """ Executes a board/list/card processor using the yaml data in the
+    card which defines it """
+
     yaml_data = processor.yaml_data
 
     gist_id = yaml_data['gist_id']
     gist_file = yaml_data['gist_file']
+
+    # Pass all yaml data as input, including gist_id and gist_file
+    # Although they will rarely be used, there's no harm in it
+    for field in yaml_data:
+        if field not in input:  # of course, avoid overwrite error
+            input[field] = yaml_data[field]
 
     github.execute_gist(gist_id, gist_file, input)
 
@@ -67,7 +76,6 @@ class Board(object):
                     self.__list_defaults = meta_list_object
                 elif list_name == "Card Processors":
                     self.__card_processors = meta_list_object
-
 
             # handle regular meta lists
             elif meta_list_object.open:
@@ -129,11 +137,21 @@ class Board(object):
         return self.__meta_lists
 
     def create_list(self, name):
-        """ Creates a list in this board but does not add it to Trellonos """
+        """ Creates a list in this board. Adds the list to this
+        board's dictionary and returns the Trellonos wrapper object """
 
         trello_list = self.__trello.create_list(self.__board_data, name)
 
-        self.__lists[name] = List(self.__trello, trello_list)
+        new_list = List(self.__trello, trello_list)
+        self.__lists[name] = new_list
+
+        return new_list
+
+    def sort_list(self, list_object, position):
+        """ Sorts the given list (supplied as Trellonos  wrapper to the given
+        position. Position can be 'top', 'bottom', or a positive number """
+
+        self.__trello.sort_list(list_object.list_data, position)
 
     def get_cards(self, type_name):
         """ Retrieve the cards from this board given a type name """

@@ -21,6 +21,14 @@ class List(object):
                 self.__closed_cards.append(card)
 
     @property
+    def list_data(self):
+        """ This property is so the board can perform certain operations
+        on this list such as sorting. There should be a better way to
+        avoid exposing this data """
+
+        return self.__list_data
+
+    @property
     def open(self):
         return not self.__list_data['closed']
 
