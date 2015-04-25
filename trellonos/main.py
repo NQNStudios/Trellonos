@@ -1,21 +1,13 @@
-import os
-
 from trellotools import Trello
 from githubtools import GithubManager
 from trellonos import Trellonos
 
 if __name__ == "__main__":
-    # Construct a Trello wrapper using environment variable settings
-    api_key = os.environ['TRELLONOS_API_KEY']
-    token = os.environ['TRELLONOS_TOKEN']
-    trello = Trello(api_key, token)
+    # Create Trello API and Github API wrappers from environment vars
+    trello = Trello.from_environment_vars()
+    github = GithubManager.from_environment_vars()
 
-    # Construct a Github wrapper using environment variable settings
-    username = os.environ['GITHUB_USER']
-    password = os.environ['GITHUB_PASSWORD']
-    github = GithubManager(username, password)
-
-    # Construct a Trellonos object using this components
+    # Construct a Trellonos object using these components
     trellonos = Trellonos(trello, github)
 
     # Run Trellonos processing

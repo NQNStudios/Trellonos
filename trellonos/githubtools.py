@@ -1,3 +1,5 @@
+import os
+
 from github import Github
 
 
@@ -17,6 +19,13 @@ class GithubManager(object):
             'input': {},
             'output': {}
         }
+
+    @classmethod
+    def from_environment_vars(cls):
+        # Construct a Github wrapper using environment variable settings
+        username = os.environ['GITHUB_USER']
+        password = os.environ['GITHUB_PASSWORD']
+        return cls(username, password)
 
     def execute_gist(self, id, filename, input={}):
         """ Run the Python code contained in the given gist file """

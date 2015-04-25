@@ -125,7 +125,7 @@ class Board(object):
         """ Sorts the given list (supplied as Trellonos  wrapper) to the given
         position. Position can be 'top', 'bottom', or a positive number """
 
-        self.__trello.sort_list(list_object.list_data, position)
+        list_object.sort(self.__trello, position)
 
     def sort_list_between(self, list_object, list_a, list_b):
         """ Sorts the given list (supplied as Trellonos wrapper) to a

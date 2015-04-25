@@ -26,14 +26,6 @@ class List(object):
         return self.__list_data['name']
 
     @property
-    def list_data(self):
-        """ This property is so the board can perform certain operations
-        on this list such as sorting. There should be a better way to
-        avoid exposing this data """
-
-        return self.__list_data
-
-    @property
     def open(self):
         return not self.__list_data['closed']
 
@@ -44,6 +36,10 @@ class List(object):
     @property
     def position(self):
         return self.__list_data['pos']
+
+    def sort(self, trello, position):
+        self.__list_data['pos'] = position
+        trello.sort_list(self.__list_data, position)
 
     def archive(self, trello):
         # Update self-contained data to reflect this call
