@@ -1,8 +1,16 @@
 #! /bin/bash
 
+ROOT_DIR=~/Trellonos
+SRC_DIR=$ROOT_DIR/trellonos
+
 echo "Beginning to test Trellonos"
 
+# Runtime configuration
+cd $ROOT_DIR
 source ./.trellorc
-python trellonos/trello-test2.py
+
+# Discover unit tests and run them
+cd $SRC_DIR
+python -m unittest discover
 
 echo "Finished testing Trellonos"
