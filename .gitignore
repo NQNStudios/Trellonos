@@ -47,11 +47,11 @@ coverage.xml
 # Django stuff:
 *.log
 
-# Sphinx documentation
-docs/_build/
-
 # PyBuilder
 target/
+
+# Sphinx documentation
+docs/_build/
 
 # Vim
 .ropeproject/
