@@ -4,12 +4,15 @@ from list import List
 
 
 METADATA_REGEX = re.compile('^<.+>$')
+
+# Single underscore attributes to avoid mangling-related error
+# Because these fields will be set dynamically (hence the dictionary)
 SPECIAL_META_LISTS = {
-    'Archetypes': '__archetypes',
-    'Board Processors': '__board_processors',
-    'List Processors': '__list_processors',
-    'List Defaults': '__list_defaults',
-    'Card Processors': '__card_processors'
+    'Archetypes': '_archetypes',
+    'Board Processors': '_board_processors',
+    'List Processors': '_list_processors',
+    'List Defaults': '_list_defaults',
+    'Card Processors': '_card_processors'
 }
 
 
@@ -43,21 +46,14 @@ class Board(object):
             meta_list_object = List(trello, meta_list)
 
             # handle special meta lists
-            if meta_list_object.open and re.search(METADATA_REGEX, list_name):
-                # strip <meta tags>
+            if re.search(METADATA_REGEX, list_name):
                 list_name = list_name[1:-1]
 
-                # TODO make this clean with setattr() or exec()
-                if list_name == "Archetypes":
-                    self.__archetypes = meta_list_object
-                elif list_name == "Board Processors":
-                    self.__board_processors = meta_list_object
-                elif list_name == "List Processors":
-                    self.__list_processors = meta_list_object
-                elif list_name == "List Defaults":
-                    self.__list_defaults = meta_list_object
-                elif list_name == "Card Processors":
-                    self.__card_processors = meta_list_object
+                if list_name in SPECIAL_META_LISTS:
+                    # If it's a special meta list, save it as an attribute
+                    # Because it shouldn't be outwardly accessible
+                    attribute_name = SPECIAL_META_LISTS[list_name]
+                    self.__dict__[attribute_name] = meta_list_object
 
             # handle regular meta lists
             elif meta_list_object.open:
@@ -73,18 +69,14 @@ class Board(object):
             list_object = List(trello, trello_list)
 
             # if archetypes are defined, apply them to this list
-            if self.__archetypes:
-                list_object.apply_archetypes(self.__archetypes)
+            if self._archetypes:
+                list_object.apply_archetypes(self._archetypes)
 
             # map the list by name
             if list_object.open:
                 self.__lists[list_name] = list_object
             else:
                 self.__closed_lists[list_name] = list_object
-
-    @property
-    def num_list_processors(self):
-        return len(self.__list_processors.cards)
 
     @property
     def name(self):
@@ -176,7 +168,7 @@ class Board(object):
         """ Run each of this board's many types of processors """
 
         # first, processors of the whole board
-        for board_processor in self.__board_processors:
+        for board_processor in self._board_processors:
             print("running board processor " + board_processor.name)
 
             # send the board as an argument, and trello wrapper
@@ -187,7 +179,7 @@ class Board(object):
             print("done running board processor " + board_processor.name)
 
         # Then list processors
-        for list_processor in self.__list_processors:
+        for list_processor in self._list_processors:
             list_name = list_processor.name
             print("running list processor " + list_name)
 
@@ -199,7 +191,7 @@ class Board(object):
             print("done running list processor " + list_name)
 
         # Then card processors
-        for card_processor in self.__card_processors:
+        for card_processor in self._card_processors:
             type_name = card_processor.name
             print("running card processor " + type_name)
 
