@@ -3,7 +3,8 @@ from card import Card
 
 class List(object):
 
-    def __init__(self, trello, trello_list):
+    def __init__(self, trello, parent_board, trello_list):
+        self.__parent_board = parent_board
         self.__list_data = trello_list
 
         self.__cards = []
@@ -19,6 +20,10 @@ class List(object):
                 self.__cards.append(card)
             else:
                 self.__closed_cards.append(card)
+
+    @property
+    def name(self):
+        return self.__list_data['name']
 
     @property
     def list_data(self):
@@ -41,12 +46,26 @@ class List(object):
         return self.__list_data['pos']
 
     def archive(self, trello):
+        # Update self-contained data to reflect this call
         self.__list_data['closed'] = True
+
+        # Trello API call to archive
         trello.update_list_closed(self.__list_data, True)
 
+        # Move this list to the parent's dictionary of closed lists
+        self.__parent_board.lists.pop(self.name)
+        self.__parent_board.closed_lists[self.name] = self
+
     def unarchive(self, trello):
+        # Update self-contained data
         self.__list_data['closed'] = False
+
+        # Trello API call to unarchive
         trello.update_list_closed(self.__list_data, False)
+
+        # Move this list to the parent's dictionary of open lists
+        self.__parent_board.closed_lists.pop(self.name)
+        self.__parent_board.lists[self.name] = self
 
     @property
     def cards(self):

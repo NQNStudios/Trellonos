@@ -43,7 +43,7 @@ class Board(object):
         for meta_list in meta_lists:
             list_name = meta_list['name']
 
-            meta_list_object = List(trello, meta_list)
+            meta_list_object = List(trello, self, meta_list)
 
             # handle special meta lists
             if re.search(METADATA_REGEX, list_name):
@@ -66,7 +66,7 @@ class Board(object):
         for trello_list in trello_lists:
             list_name = trello_list['name']
 
-            list_object = List(trello, trello_list)
+            list_object = List(trello, self, trello_list)
 
             # if archetypes are defined, apply them to this list
             if self._archetypes:
@@ -116,7 +116,7 @@ class Board(object):
 
         trello_list = self.__trello.create_list(self.__board_data, name)
 
-        new_list = List(self.__trello, trello_list)
+        new_list = List(self.__trello, self, trello_list)
         self.__lists[name] = new_list
 
         return new_list

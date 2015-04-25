@@ -22,4 +22,9 @@ trellonos = Trellonos(trello, github)
 board = trellonos.boards['Planner']
 board.create_list("Test")
 
-print(board.lists['Test'])
+new_list = board.lists['Test']
+print(new_list)
+
+new_list.archive(trello)
+print(new_list.name in board.lists)
+print(new_list.name in board.closed_lists)

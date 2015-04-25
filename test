@@ -2,4 +2,7 @@
 
 echo "Beginning to test Trellonos"
 
+source ./.trellorc
+python trellonos/trello-test2.py
+
 echo "Finished testing Trellonos"
