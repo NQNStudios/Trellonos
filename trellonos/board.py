@@ -122,10 +122,43 @@ class Board(object):
         return new_list
 
     def sort_list(self, list_object, position):
-        """ Sorts the given list (supplied as Trellonos  wrapper to the given
+        """ Sorts the given list (supplied as Trellonos  wrapper) to the given
         position. Position can be 'top', 'bottom', or a positive number """
 
         self.__trello.sort_list(list_object.list_data, position)
+
+    def sort_list_between(self, list_object, list_a, list_b):
+        """ Sorts the given list (supplied as Trellonos wrapper) to a
+        position between the two other given lists.
+
+        If list_ a or list_b is None, list_object will be sorted to the
+        position immediately adjacent the existing list, i.e. "between"
+        the existing list and nothing on the empty side. """
+        left_bound = None
+        right_bound = None
+        new_position = None
+
+        if list_a:
+            left_bound = list_a.position
+        elif list_b:
+            # left bound doesn't exist, move left of the right bound
+            new_position = list_b.position - 1
+
+        if list_b:
+            right_bound = list_b.position
+        elif list_a:
+            # right bound doesn't exist, move right of the left bound
+            new_position = list_a.position + 1
+
+        if left_bound and right_bound:
+            # Average the position of two existing bound lists
+            new_position = (left_bound + right_bound) / 2
+
+        if new_position:
+            self.sort_list(list_object, new_position)
+        else:
+            raise ValueError('Tried to sort list between two \
+                             non-existent lists')
 
     def get_cards(self, type_name):
         """ Retrieve the cards from this board given a type name """
