@@ -10,7 +10,8 @@ DIVIDER_LINE = '---\n'  # splits description plaintext and YAML
 class Card(object):
     """ Wrapper of a Trello card """
 
-    def __init__(self, trello_card):
+    def __init__(self, parent_list, trello_card):
+        self.__parent_list = parent_list
         self.__card_data = trello_card
 
         desc = trello_card['desc']  # retrieve full description including yaml
@@ -61,12 +62,20 @@ class Card(object):
         # make the change through API call
         trello.update_card_closed(self.__card_data, True)
 
+        # Move to the proper parent container
+        self.__parent_list.cards.remove(self)
+        self.__parent_list.closed_cards.append(self)
+
     def unarchive(self, trello):
         # update card data to reflect change
         self.__card_data['closed'] = False
 
         # make the change through API call
         trello.update_card_closed(self.__card_data, False)
+
+        # Move to the proper parent container
+        self.__parent_list.closed_cards.remove(self)
+        self.__parent_list.cards.append(self)
 
     @property
     def type_name(self):
