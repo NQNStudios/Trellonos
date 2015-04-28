@@ -110,7 +110,7 @@ class Trello(object):
                                           boolean_to_string(value))
 
     def create_card(self, list, card_name, description=''):
-        self.__trello.cards.new(card_name, list['id'], description)
+        return self.__trello.cards.new(card_name, list['id'], description)
 
     def delete_card(self, card):
         self.__trello.cards.delete(card['id'])
