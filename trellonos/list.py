@@ -71,6 +71,22 @@ class List(object):
     def closed_cards(self):
         return self.__closed_cards
 
+    def archive_all_cards(self, trello):
+        """ Archives all cards in this list that are not already archived """
+        for i in reversed(range(len(self.cards))):
+            # Loop through the collection in reverse to avoid indexing
+            # errors. Don't iterate because archive() will modify the
+            # contents of self.cards
+            card = self.cards[i]
+            card.archive(trello)
+
+    def unarchive_all_cards(self, trello):
+        """ Unarchives all archived cards in this list """
+        for i in reversed(range(len(self.closed_cards))):
+            # Loop in reverse
+            card = self.closed_cards[i]
+            card.unarchive(trello)
+
     def get_card(self, name):
         """ Finds the first card in this list with the given name """
         for card in self.cards:
