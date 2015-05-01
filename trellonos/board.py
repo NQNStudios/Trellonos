@@ -29,11 +29,8 @@ class Board(object):
 
         self.__meta_lists = {}
 
-        self.__archetypes = {}
-        self.__board_processors = {}
-        self.__list_processors = {}
-        self.__card_processors = {}
-        self.__list_defaults = {}
+        for list_name in SPECIAL_META_LISTS:
+            setattr(self, SPECIAL_META_LISTS[list_name], {})
 
         # retrieve lists in the board
         trello_lists = trello.get_lists(trello_board)
