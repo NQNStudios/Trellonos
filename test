@@ -1,13 +1,9 @@
 #! /bin/bash
 
-ROOT_DIR=~/Trellonos
-SRC_DIR=$ROOT_DIR/trellonos
-
 echo "Beginning to test Trellonos"
 
 # Runtime configuration
-cd $ROOT_DIR
-source ./.trellorc
+source ~/.trellorc
 
 # Discover unit tests and run them
 cd $SRC_DIR

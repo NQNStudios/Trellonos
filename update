@@ -2,8 +2,7 @@
 
 echo "Beginning to update Trellonos"
 
-ROOT_DIR=~/Trellonos
-
+source ~/.trellorc
 cd $ROOT_DIR
 
 git pull
