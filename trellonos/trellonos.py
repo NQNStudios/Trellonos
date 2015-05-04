@@ -1,5 +1,7 @@
 import re
 
+from trellotools import Trello
+from githubtools import GithubManager
 from board import Board
 
 
@@ -39,6 +41,12 @@ class Trellonos(object):
             board_object = Board(trello, normal_board, meta_board)
 
             self.__boards[board_name] = board_object
+
+    @classmethod
+    def from_environment_vars():
+        trello = Trello.from_environment_vars()
+        github = GithubManager.from_environment_vars()
+        return Trellonos(trello, github)
 
     @property
     def boards(self):

@@ -55,28 +55,6 @@ class Card(object):
     def closed(self):
         return self.__card_data['closed']
 
-    def archive(self, trello):
-        # update card data to reflect change
-        self.__card_data['closed'] = True
-
-        # make the change through API call
-        trello.update_card_closed(self.__card_data, True)
-
-        # Move to the proper parent container
-        self.__parent_list.cards.remove(self)
-        self.__parent_list.closed_cards.append(self)
-
-    def unarchive(self, trello):
-        # update card data to reflect change
-        self.__card_data['closed'] = False
-
-        # make the change through API call
-        trello.update_card_closed(self.__card_data, False)
-
-        # Move to the proper parent container
-        self.__parent_list.closed_cards.remove(self)
-        self.__parent_list.cards.append(self)
-
     @property
     def type_name(self):
         """ The type name of this card (for archetypal inheritance) """
@@ -117,3 +95,41 @@ class Card(object):
             if key not in self.__yaml_data:
                 self.__yaml_data[key] = yaml_data[key]
                 self.__inherited_data.append(key)
+
+    def archive(self, trello):
+        # update card data to reflect change
+        self.__card_data['closed'] = True
+
+        # make the change through API call
+        trello.update_card_closed(self.__card_data, True)
+
+        # Move to the proper parent container
+        self.__parent_list.cards.remove(self)
+        self.__parent_list.closed_cards.append(self)
+
+    def unarchive(self, trello):
+        # update card data to reflect change
+        self.__card_data['closed'] = False
+
+        # make the change through API call
+        trello.update_card_closed(self.__card_data, False)
+
+        # Move to the proper parent container
+        self.__parent_list.closed_cards.remove(self)
+        self.__parent_list.cards.append(self)
+
+    def copy(self, trello, destination_list=None):
+        """ Copies this Card in the given Trellonos list or the same list """
+        if not destination_list:
+            destination_list = self.__parent_list
+
+        # Make the API call
+        new_card = trello.copy_card(self.__card_data,
+                                    destination_list._list_data)
+
+        # Make the wrapper
+        card_object = Card(destination_list, new_card)
+        # Add the wrapper to the destination list's container
+        destination_list._cards.append(card_object)
+
+        return card_object
