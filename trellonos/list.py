@@ -49,20 +49,8 @@ class List(object):
         # Trello API call to archive
         trello.update_list_closed(self._list_data, True)
 
-        # Move this list to the parent's dictionary of closed lists
+        # Remove this list from the parent board's dictionary
         self.__parent_board.lists.pop(self.name)
-        self.__parent_board.closed_lists[self.name] = self
-
-    def unarchive(self, trello):
-        # Update self-contained data
-        self._list_data['closed'] = False
-
-        # Trello API call to unarchive
-        trello.update_list_closed(self._list_data, False)
-
-        # Move this list to the parent's dictionary of open lists
-        self.__parent_board.closed_lists.pop(self.name)
-        self.__parent_board.lists[self.name] = self
 
     @property
     def cards(self):

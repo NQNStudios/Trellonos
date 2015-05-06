@@ -1,7 +1,8 @@
-import yaml
 import string
 import re
 
+import yaml
+import dateutil.parser
 
 DIVIDER_REGEX = re.compile('^-+$')  # Any natural number of hyphens
 DIVIDER_LINE = '---\n'  # splits description plaintext and YAML
@@ -54,6 +55,11 @@ class Card(object):
     @property
     def closed(self):
         return self.__card_data['closed']
+
+    @property
+    def due_date(self):
+        if 'due' in self.__card_data:
+            return dateutil.parser.parse(self.__card_data['due'])
 
     @property
     def type_name(self):

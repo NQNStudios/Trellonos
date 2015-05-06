@@ -25,10 +25,10 @@ class Board(object):
         self.__meta_board = meta_board
 
         self.__lists = {}
-        self.__closed_lists = {}
 
         self.__meta_lists = {}
 
+        # Set special meta lists to empty before they are found
         for list_name in SPECIAL_META_LISTS:
             setattr(self, SPECIAL_META_LISTS[list_name], {})
 
@@ -53,13 +53,13 @@ class Board(object):
                     self.__dict__[attribute_name] = meta_list_object
 
             # handle regular meta lists
-            elif meta_list_object.open:
+            else:
                 # map the list
                 self.__meta_lists[list_name] = meta_list_object
 
-            # closed meta lists will be discarded altogether!
+            # closed meta lists will be discarded altogether by API filter
 
-        # map lists in a dictionary by name
+        # map regular lists in a dictionary by name
         for trello_list in trello_lists:
             list_name = trello_list['name']
 
@@ -70,10 +70,7 @@ class Board(object):
                 list_object.apply_archetypes(self._archetypes)
 
             # map the list by name
-            if list_object.open:
-                self.__lists[list_name] = list_object
-            else:
-                self.__closed_lists[list_name] = list_object
+            self.__lists[list_name] = list_object
 
     @property
     def name(self):
@@ -98,10 +95,6 @@ class Board(object):
     @property
     def lists(self):
         return self.__lists
-
-    @property
-    def closed_lists(self):
-        return self.__closed_lists
 
     @property
     def meta_lists(self):

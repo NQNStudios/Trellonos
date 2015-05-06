@@ -10,7 +10,6 @@ BASE_URL = 'https://api.trello.com/' + API_VERSION + '/'
 FILTER_OPEN = 'open'
 FILTER_CLOSED = 'closed'
 FILTER_ALL = 'all'
-FILTER_DEFAULT = FILTER_ALL
 
 # CONVENIENCE CONVERSION FUNCTIONS
 
@@ -63,7 +62,7 @@ class Trello(object):
 
     # BOARDS #
 
-    def get_boards(self, board_filter=FILTER_DEFAULT):
+    def get_boards(self, board_filter=FILTER_OPEN):
         """ Retrieves an optionally filtered list of Trello boards """
 
         boards = self.__trello.members.get_board(
@@ -73,7 +72,7 @@ class Trello(object):
 
     # LISTS #
 
-    def get_lists(self, board, list_filter=FILTER_DEFAULT):
+    def get_lists(self, board, list_filter=FILTER_OPEN):
         """ Retrieves an optionally filtered list of Trello lists """
 
         lists = self.__trello.boards.get_list(board['id'], filter=list_filter)
@@ -98,7 +97,7 @@ class Trello(object):
 
     # CARDS #
 
-    def get_cards(self, list, card_filter=FILTER_DEFAULT, fields=None):
+    def get_cards(self, list, card_filter=FILTER_ALL, fields=None):
         """ Retrieves cards from the given list """
 
         cards = self.__trello.lists.get_card(
