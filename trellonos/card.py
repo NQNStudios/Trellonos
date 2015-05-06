@@ -124,14 +124,15 @@ class Card(object):
         self.__parent_list.closed_cards.remove(self)
         self.__parent_list.cards.append(self)
 
-    def copy(self, trello, destination_list=None):
+    def copy(self, trello, destination_list=None, override_params={}):
         """ Copies this Card in the given Trellonos list or the same list """
         if not destination_list:
             destination_list = self.__parent_list
 
         # Make the API call
         new_card = trello.copy_card(self.__card_data,
-                                    destination_list._list_data)
+                                    destination_list._list_data,
+                                    override_params)
 
         # Make the wrapper
         card_object = Card(destination_list, new_card)

@@ -125,14 +125,15 @@ class List(object):
             if archetype:
                 card.apply_archetype(archetype)
 
-    def copy(self, trello, destination_board=None):
+    def copy(self, trello, destination_board=None, override_params={}):
         """ Copies this list in the given Trellonos board or the same board """
         if not destination_board:
             destination_board = self.__parent_board
 
         # Make the API call
         new_list = trello.copy_list(self._list_data,
-                                    destination_board._board_data)
+                                    destination_board._board_data,
+                                    override_params)
 
         # Make the wrapper
         list_object = List(destination_board, new_list)
