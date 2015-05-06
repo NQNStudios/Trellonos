@@ -37,6 +37,14 @@ class List(object):
     def position(self):
         return self._list_data['pos']
 
+    @property
+    def cards(self):
+        return self._cards
+
+    @property
+    def closed_cards(self):
+        return self.__closed_cards
+
     def sort(self, trello, position):
         self._list_data['pos'] = position
         trello.sort_list(self._list_data, position)
@@ -50,14 +58,6 @@ class List(object):
 
         # Remove this list from the parent board's dictionary
         self.__parent_board.lists.pop(self.name)
-
-    @property
-    def cards(self):
-        return self._cards
-
-    @property
-    def closed_cards(self):
-        return self.__closed_cards
 
     def archive_all_cards(self, trello):
         """ Archives all cards in this list that are not already archived """
@@ -91,6 +91,16 @@ class List(object):
 
         return cards
 
+    def create_card(self, trello, name):
+        """ Creates a card in this list. Adds the card to this lists's
+        container and returns the Trellonos wrapper object """
+
+        trello_card = trello.create_card(self._list_data, name)
+        new_card = Card(self, trello_card)
+        self._cards.append(new_card)
+
+        return new_card
+
     def apply_archetypes(self, archetypes):
         """ Applies the given archetypes to all pertinent cards in this list """
 
@@ -114,6 +124,27 @@ class List(object):
             # apply it if it exists
             if archetype:
                 card.apply_archetype(archetype)
+
+    def copy(self, trello, destination_board=None):
+        """ Copies this list in the given Trellonos board or the same board """
+        if not destination_board:
+            destination_board = self.__parent_board
+
+        # Make the API call
+        new_list = trello.copy_list(self._list_data,
+                                    destination_board._board_data)
+
+        # Make the wrapper
+        list_object = List(destination_board, new_list)
+        # Add the wrapper to the destination board's container
+        destination_board._lists[list_object.name] = list_object
+
+    def copy_contents(self, trello, destination_list):
+        """ Copies the cards contained in this list into the given Trellonos
+        list """
+
+        for card in self._cards:
+            card.copy(trello, destination_list)
 
     # List functions
     def __getitem__(self, index):

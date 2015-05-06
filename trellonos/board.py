@@ -21,10 +21,10 @@ class Board(object):
 
     def __init__(self, trello, trello_board, meta_board):
         self.__trello = trello
-        self.__board_data = trello_board
+        self._board_data = trello_board
         self.__meta_board = meta_board
 
-        self.__lists = {}
+        self._lists = {}
 
         self.__meta_lists = {}
 
@@ -70,31 +70,31 @@ class Board(object):
                 list_object.apply_archetypes(self._archetypes)
 
             # map the list by name
-            self.__lists[list_name] = list_object
+            self._lists[list_name] = list_object
 
     @property
     def name(self):
-        return self.__board_data['name']
+        return self._board_data['name']
 
     @property
     def open(self):
-        return not self.__board_data['closed']
+        return not self._board_data['closed']
 
     @property
     def closed(self):
-        return self.__board_data['closed']
+        return self._board_data['closed']
 
     def archive(self, trello):
-        self.__board_data['closed'] = True
-        trello.update_board_closed(self.__board_data, True)
+        self._board_data['closed'] = True
+        trello.update_board_closed(self._board_data, True)
 
     def unarchive(self, trello):
-        self.__board_data['closed'] = False
-        trello.update_board_closed(self.__board_data, False)
+        self._board_data['closed'] = False
+        trello.update_board_closed(self._board_data, False)
 
     @property
     def lists(self):
-        return self.__lists
+        return self._lists
 
     @property
     def meta_lists(self):
@@ -104,10 +104,10 @@ class Board(object):
         """ Creates a list in this board. Adds the list to this
         board's dictionary and returns the Trellonos wrapper object """
 
-        trello_list = self.__trello.create_list(self.__board_data, name)
+        trello_list = self.__trello.create_list(self._board_data, name)
 
         new_list = List(self.__trello, self, trello_list)
-        self.__lists[name] = new_list
+        self._lists[name] = new_list
 
         return new_list
 
@@ -155,8 +155,8 @@ class Board(object):
         cards = []
 
         # Iterate through lists
-        for list_key in self.__lists:
-            tlist = self.__lists[list_key]
+        for list_key in self._lists:
+            tlist = self._lists[list_key]
 
             # For each list, iterate through cards
             for card in tlist:
@@ -206,7 +206,7 @@ class Board(object):
             list_name = list_processor.name
             print("running list processor " + list_name)
 
-            input_list = self.__lists[list_name]
+            input_list = self._lists[list_name]
 
             # Pass the list with the same name as an argument
             input_dict = {'list': input_list, 'trello': self.__trello}

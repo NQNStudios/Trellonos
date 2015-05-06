@@ -95,6 +95,25 @@ class Trello(object):
         url = BASE_URL + 'lists/' + list['id'] + '/pos'
         requests.put(url, params=self.request_params({'value': position}))
 
+    def copy_list(self, list, board, override_params={}):
+        """ Copies the given list into a new list in the given board """
+        url = BASE_URL + 'lists/'
+
+        params = {}
+
+        params['name'] = list['name']
+        params['idBoard'] = board['id']
+        params['idListSource'] = list['id']
+
+        for override_param in override_params:
+            params[override_param] = override_params[override_param]
+
+        # TODO is this supposed to be 'data' or 'params'?
+        request = requests.post(url, data=self.request_params(params))
+
+        # Return the output
+        return json.loads(request.text)
+
     # CARDS #
 
     def get_cards(self, list, card_filter=FILTER_ALL, fields=None):
@@ -116,6 +135,7 @@ class Trello(object):
         self.__trello.cards.delete(card['id'])
 
     def copy_card(self, card, list, override_params={}):
+        """ Copies the given card into a new card in the given list """
         url = BASE_URL + 'cards/'
 
         params = {}
@@ -128,9 +148,7 @@ class Trello(object):
         for override_param in override_params:
             params[override_param] = override_params[override_param]
 
-        # TODO is this supposed to be 'data' or 'params'?
         request = requests.post(url, data=self.request_params(params))
 
         # Return the output
-        print('Text: ' + request.text)
         return json.loads(request.text)

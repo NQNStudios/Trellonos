@@ -11,6 +11,4 @@ trellonos = Trellonos(trello, github)
 
 board = trellonos.boards['Planner']
 tlist = board.lists['Wednesday May 06']
-tcard = tlist.cards[2]
-
-tcard.copy(trello)
+tlist.create_card(trello, 'test')
