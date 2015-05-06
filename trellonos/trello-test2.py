@@ -10,10 +10,7 @@ github = GithubManager.from_environment_vars()
 trellonos = Trellonos(trello, github)
 
 board = trellonos.boards['Planner']
-tlist = board.lists['Friday May 08']
-tcard = tlist.cards[4]
-date = tcard.due_date
+tlist = board.lists['Wednesday May 06']
+tcard = tlist.cards[2]
 
-print(date)
-print(date.weekday())
-#tcard.copy(trello)
+tcard.copy(trello)

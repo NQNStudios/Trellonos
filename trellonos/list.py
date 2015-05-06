@@ -4,7 +4,6 @@ from card import Card
 class List(object):
 
     def __init__(self, trello, parent_board, trello_list):
-        print('init list ' + trello_list['name'])
         self.__parent_board = parent_board
         self._list_data = trello_list
 

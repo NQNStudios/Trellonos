@@ -115,21 +115,22 @@ class Trello(object):
     def delete_card(self, card):
         self.__trello.cards.delete(card['id'])
 
-    def copy_card(self, card, list, optional_params={}):
+    def copy_card(self, card, list, override_params={}):
         url = BASE_URL + 'cards/'
 
         params = {}
 
-        # Required params
         params['due'] = card['due']
         params['idList'] = list['id']
-        params['urlSource'] = card['url']
+        params['urlSource'] = 'null'
+        params['idCardSource'] = card['id']
 
-        for optional_param in optional_params:
-            params[optional_param] = optional_params[optional_param]
+        for override_param in override_params:
+            params[override_param] = override_params[override_param]
 
         # TODO is this supposed to be 'data' or 'params'?
         request = requests.post(url, data=self.request_params(params))
 
         # Return the output
+        print('Text: ' + request.text)
         return json.loads(request.text)
