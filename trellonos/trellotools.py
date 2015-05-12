@@ -108,7 +108,6 @@ class Trello(object):
         for override_param in override_params:
             params[override_param] = override_params[override_param]
 
-        # TODO is this supposed to be 'data' or 'params'?
         request = requests.post(url, data=self.request_params(params))
 
         # Return the output
@@ -136,6 +135,13 @@ class Trello(object):
 
     def update_card_description(self, card, description):
         self.__trello.cards.update_desc(card['id'], description)
+
+    def move_card(self, card, list):
+        # TODO this doesn't work
+        url = BASE_URL + 'cards/' + card['id'] + '/idList'
+        params = self.request_params({'value': list['id']})
+
+        requests.put(url, params=params)
 
     def copy_card(self, card, list, override_params={}):
         """ Copies the given card into a new card in the given list """

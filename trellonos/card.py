@@ -157,6 +157,13 @@ class Card(object):
         self.__parent_list.closed_cards.remove(self)
         self.__parent_list.cards.append(self)
 
+    def move(self, trello, destination_list):
+        # TODO this is a hack which moves cards by copying them, then
+        # archiving the original. It's done this way because the API card
+        # movement functions seem to be broken
+        self.copy(trello, destination_list)
+        self.archive(trello)
+
     def copy(self, trello, destination_list=None, override_params={}):
         """ Copies this Card in the given Trellonos list or the same list """
         if not destination_list:
