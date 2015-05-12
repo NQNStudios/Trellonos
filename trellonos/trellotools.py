@@ -134,6 +134,9 @@ class Trello(object):
     def delete_card(self, card):
         self.__trello.cards.delete(card['id'])
 
+    def update_card_description(self, card, description):
+        self.__trello.cards.update_desc(card['id'], description)
+
     def copy_card(self, card, list, override_params={}):
         """ Copies the given card into a new card in the given list """
         url = BASE_URL + 'cards/'

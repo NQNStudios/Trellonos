@@ -65,6 +65,16 @@ class Board(object):
 
             list_object = List(trello, self, trello_list)
 
+            # if this list has a default type name, apply it
+            if self._list_defaults:
+                # Find the default card
+                default_card = self._list_defaults.get_card(list_name)
+
+                # Only apply a default if it exists
+                if default_card:
+                    type_name = default_card.type_name
+                    list_object.apply_default_type(type_name)
+
             # if archetypes are defined, apply them to this list
             if self._archetypes:
                 list_object.apply_archetypes(self._archetypes)

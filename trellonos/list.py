@@ -101,11 +101,18 @@ class List(object):
 
         return new_card
 
+    def apply_default_type(self, default_type):
+        """ Applies the given default type name to every card in this list
+        that does not already have a type name, including closed cards """
+
+        for card in self.cards:
+            card.apply_default_type(default_type)
+
+        for card in self.closed_cards:
+            card.apply_default_type(default_type)
+
     def apply_archetypes(self, archetypes):
         """ Applies the given archetypes to all pertinent cards in this list """
-
-        # Retrieve the list default metacard
-        default_card = self.get_card('<Default>')
 
         for card in self.cards:
             type_name = ''
@@ -113,10 +120,6 @@ class List(object):
             # If the card defines a type, use that archetype
             if 'type' in card.yaml_data:
                 type_name = card.yaml_data['type']
-
-            # If not, use the list default if it exists
-            elif default_card:
-                type_name = default_card.yaml_data['type']
 
             # attempt to retrieve the archetype
             archetype = archetypes.get_card(type_name)

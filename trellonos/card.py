@@ -11,18 +11,16 @@ DIVIDER_LINE = '---\n'  # splits description plaintext and YAML
 class Card(object):
     """ Wrapper of a Trello card """
 
-    def __init__(self, parent_list, trello_card):
-        self.__parent_list = parent_list
-        self.__card_data = trello_card
-
-        desc = trello_card['desc']  # retrieve full description including yaml
+    def parse_description(self, description):
+        """ Helper function updates this card's yaml data based on the new
+        description supplied """
 
         desc_lines = ''
         yaml_lines = ''
 
         yaml_line = False
 
-        for line in string.split(desc, '\n'):
+        for line in string.split(description, '\n'):
             if re.search(DIVIDER_REGEX, line):
                 # After the yaml divider is discovered, all lines are YAML
                 yaml_line = True
@@ -43,6 +41,17 @@ class Card(object):
 
         if not self.__yaml_data:
             self.__yaml_data = {}  # no null yaml data
+
+    def __init__(self, parent_list, trello_card):
+        """ Constructs a Trellonos wrapper of the given card in the given
+        parent list """
+        self.__parent_list = parent_list
+        self.__card_data = trello_card
+        self.__inherited_data = []
+
+        desc = trello_card['desc']  # retrieve full description including yaml
+
+        self.parse_description(desc)
 
     @property
     def name(self):
@@ -69,6 +78,10 @@ class Card(object):
         else:
             return self.__yaml_data['type']
 
+    @type_name.setter
+    def type_name(self, value):
+        self.__yaml_data['type'] = value
+
     @property
     def description(self):
         """ The trimmed description of this card (excluding yaml_data) """
@@ -81,10 +94,11 @@ class Card(object):
 
         uninherited_yaml_data = {}
         for key in self.__yaml_data:
-            if key not in self.__inherited_data:
+            if self.__inherited_data and key not in self.__inherited_data:
                 uninherited_yaml_data[key] = self.__yaml_data[key]
 
-        yaml_lines = yaml.dump(uninherited_yaml_data, default_flow_style=False)
+        yaml_lines = yaml.safe_dump(uninherited_yaml_data, encoding='utf-8',
+                               allow_unicode=True, default_flow_style=False)
 
         return self.description + DIVIDER_LINE + yaml_lines
 
@@ -92,9 +106,28 @@ class Card(object):
     def yaml_data(self):
         return self.__yaml_data
 
+    def set_description(self, trello, full_description):
+        """ Gives this card a new description """
+        # Change the description through API call
+        trello.update_card_description(self.__card_data, full_description)
+
+        # Parse out Yaml data from the new description
+        self.parse_description(full_description)
+
+    def update_description(self, trello):
+        """ Updates this card's description to persist new changes to YAML
+        data and (less often) the description field """
+        full_description = self.full_description
+
+        trello.update_card_description(self.__card_data, full_description)
+
+    def apply_default_type(self, default_type):
+        if not self.type_name:
+            self.__inherited_data.append('type')
+            self.type_name = default_type
+
     def apply_archetype(self, archetype_card):
         """ Inherit the given archetype's yaml_data """
-        self.__inherited_data = []
         yaml_data = archetype_card.yaml_data
 
         for key in yaml_data:
