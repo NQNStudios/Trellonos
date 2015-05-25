@@ -173,6 +173,16 @@ class Board(object):
 
         return cards
 
+    def is_processor(self, processor):
+        """ Tests whether a card is a processor """
+        if 'gist_id' not in processor.yaml_data:
+            return False
+
+        if 'gist_file' not in processor.yaml_data:
+            return False
+
+        return True
+
     def execute_processor(self, github, processor, input):
         """ Executes a board/list/card processor using the yaml data in the
         card which defines it """
@@ -199,6 +209,9 @@ class Board(object):
 
         # first, processors of the whole board
         for board_processor in self._board_processors:
+            if not self.is_processor(board_processor):
+                continue
+
             print("running board processor " + board_processor.name)
 
             # send the board as an argument, and trello wrapper
@@ -210,6 +223,9 @@ class Board(object):
 
         # Then list processors
         for list_processor in self._list_processors:
+            if not self.is_processor(list_processor):
+                continue
+
             list_name = list_processor.name
             print("running list processor " + list_name)
 
@@ -222,6 +238,9 @@ class Board(object):
 
         # Then card processors
         for card_processor in self._card_processors:
+            if not self.is_processor(card_processor):
+                continue
+
             type_name = card_processor.name
             print("running card processor " + type_name)
 
