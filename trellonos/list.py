@@ -5,9 +5,9 @@ class List(object):
 
     def __init__(self, trello, parent_board, trello_list):
         self.__parent_board = parent_board
-        self.__list_data = trello_list
+        self._list_data = trello_list
 
-        self.__cards = []
+        self._cards = []
         self.__closed_cards = []
 
         # store contained cards in a list
@@ -17,59 +17,47 @@ class List(object):
 
             # separated open/closed
             if card.open:
-                self.__cards.append(card)
+                self._cards.append(card)
             else:
                 self.__closed_cards.append(card)
 
     @property
     def name(self):
-        return self.__list_data['name']
+        return self._list_data['name']
 
     @property
     def open(self):
-        return not self.__list_data['closed']
+        return not self._list_data['closed']
 
     @property
     def closed(self):
-        return self.__list_data['closed']
+        return self._list_data['closed']
 
     @property
     def position(self):
-        return self.__list_data['pos']
-
-    def sort(self, trello, position):
-        self.__list_data['pos'] = position
-        trello.sort_list(self.__list_data, position)
-
-    def archive(self, trello):
-        # Update self-contained data to reflect this call
-        self.__list_data['closed'] = True
-
-        # Trello API call to archive
-        trello.update_list_closed(self.__list_data, True)
-
-        # Move this list to the parent's dictionary of closed lists
-        self.__parent_board.lists.pop(self.name)
-        self.__parent_board.closed_lists[self.name] = self
-
-    def unarchive(self, trello):
-        # Update self-contained data
-        self.__list_data['closed'] = False
-
-        # Trello API call to unarchive
-        trello.update_list_closed(self.__list_data, False)
-
-        # Move this list to the parent's dictionary of open lists
-        self.__parent_board.closed_lists.pop(self.name)
-        self.__parent_board.lists[self.name] = self
+        return self._list_data['pos']
 
     @property
     def cards(self):
-        return self.__cards
+        return self._cards
 
     @property
     def closed_cards(self):
         return self.__closed_cards
+
+    def sort(self, trello, position):
+        self._list_data['pos'] = position
+        trello.sort_list(self._list_data, position)
+
+    def archive(self, trello):
+        # Update self-contained data to reflect this call
+        self._list_data['closed'] = True
+
+        # Trello API call to archive
+        trello.update_list_closed(self._list_data, True)
+
+        # Remove this list from the parent board's dictionary
+        self.__parent_board.lists.pop(self.name)
 
     def archive_all_cards(self, trello):
         """ Archives all cards in this list that are not already archived """
@@ -103,11 +91,28 @@ class List(object):
 
         return cards
 
+    def create_card(self, trello, name):
+        """ Creates a card in this list. Adds the card to this lists's
+        container and returns the Trellonos wrapper object """
+
+        trello_card = trello.create_card(self._list_data, name)
+        new_card = Card(self, trello_card)
+        self._cards.append(new_card)
+
+        return new_card
+
+    def apply_default_type(self, default_type):
+        """ Applies the given default type name to every card in this list
+        that does not already have a type name, including closed cards """
+
+        for card in self.cards:
+            card.apply_default_type(default_type)
+
+        for card in self.closed_cards:
+            card.apply_default_type(default_type)
+
     def apply_archetypes(self, archetypes):
         """ Applies the given archetypes to all pertinent cards in this list """
-
-        # Retrieve the list default metacard
-        default_card = self.get_card('<Default>')
 
         for card in self.cards:
             type_name = ''
@@ -116,10 +121,6 @@ class List(object):
             if 'type' in card.yaml_data:
                 type_name = card.yaml_data['type']
 
-            # If not, use the list default if it exists
-            elif default_card:
-                type_name = default_card.yaml_data['type']
-
             # attempt to retrieve the archetype
             archetype = archetypes.get_card(type_name)
 
@@ -127,9 +128,31 @@ class List(object):
             if archetype:
                 card.apply_archetype(archetype)
 
+    def copy(self, trello, destination_board=None, override_params={}):
+        """ Copies this list in the given Trellonos board or the same board """
+        if not destination_board:
+            destination_board = self.__parent_board
+
+        # Make the API call
+        new_list = trello.copy_list(self._list_data,
+                                    destination_board._board_data,
+                                    override_params)
+
+        # Make the wrapper
+        list_object = List(destination_board, new_list)
+        # Add the wrapper to the destination board's container
+        destination_board._lists[list_object.name] = list_object
+
+    def copy_contents(self, trello, destination_list):
+        """ Copies the cards contained in this list into the given Trellonos
+        list """
+
+        for card in self._cards:
+            card.copy(trello, destination_list)
+
     # List functions
     def __getitem__(self, index):
-        return self.__cards[index]
+        return self._cards[index]
 
     # Iterator functions
     def __iter__(self):

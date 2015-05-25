@@ -21,14 +21,14 @@ class Board(object):
 
     def __init__(self, trello, trello_board, meta_board):
         self.__trello = trello
-        self.__board_data = trello_board
+        self._board_data = trello_board
         self.__meta_board = meta_board
 
-        self.__lists = {}
-        self.__closed_lists = {}
+        self._lists = {}
 
         self.__meta_lists = {}
 
+        # Set special meta lists to empty before they are found
         for list_name in SPECIAL_META_LISTS:
             setattr(self, SPECIAL_META_LISTS[list_name], {})
 
@@ -53,55 +53,58 @@ class Board(object):
                     self.__dict__[attribute_name] = meta_list_object
 
             # handle regular meta lists
-            elif meta_list_object.open:
+            else:
                 # map the list
                 self.__meta_lists[list_name] = meta_list_object
 
-            # closed meta lists will be discarded altogether!
+            # closed meta lists will be discarded altogether by API filter
 
-        # map lists in a dictionary by name
+        # map regular lists in a dictionary by name
         for trello_list in trello_lists:
             list_name = trello_list['name']
 
             list_object = List(trello, self, trello_list)
+
+            # if this list has a default type name, apply it
+            if self._list_defaults:
+                # Find the default card
+                default_card = self._list_defaults.get_card(list_name)
+
+                # Only apply a default if it exists
+                if default_card:
+                    type_name = default_card.type_name
+                    list_object.apply_default_type(type_name)
 
             # if archetypes are defined, apply them to this list
             if self._archetypes:
                 list_object.apply_archetypes(self._archetypes)
 
             # map the list by name
-            if list_object.open:
-                self.__lists[list_name] = list_object
-            else:
-                self.__closed_lists[list_name] = list_object
+            self._lists[list_name] = list_object
 
     @property
     def name(self):
-        return self.__board_data['name']
+        return self._board_data['name']
 
     @property
     def open(self):
-        return not self.__board_data['closed']
+        return not self._board_data['closed']
 
     @property
     def closed(self):
-        return self.__board_data['closed']
+        return self._board_data['closed']
 
     def archive(self, trello):
-        self.__board_data['closed'] = True
-        trello.update_board_closed(self.__board_data, True)
+        self._board_data['closed'] = True
+        trello.update_board_closed(self._board_data, True)
 
     def unarchive(self, trello):
-        self.__board_data['closed'] = False
-        trello.update_board_closed(self.__board_data, False)
+        self._board_data['closed'] = False
+        trello.update_board_closed(self._board_data, False)
 
     @property
     def lists(self):
-        return self.__lists
-
-    @property
-    def closed_lists(self):
-        return self.__closed_lists
+        return self._lists
 
     @property
     def meta_lists(self):
@@ -111,10 +114,10 @@ class Board(object):
         """ Creates a list in this board. Adds the list to this
         board's dictionary and returns the Trellonos wrapper object """
 
-        trello_list = self.__trello.create_list(self.__board_data, name)
+        trello_list = self.__trello.create_list(self._board_data, name)
 
         new_list = List(self.__trello, self, trello_list)
-        self.__lists[name] = new_list
+        self._lists[name] = new_list
 
         return new_list
 
@@ -162,8 +165,8 @@ class Board(object):
         cards = []
 
         # Iterate through lists
-        for list_key in self.__lists:
-            tlist = self.__lists[list_key]
+        for list_key in self._lists:
+            tlist = self._lists[list_key]
 
             # For each list, iterate through cards
             for card in tlist:
@@ -229,7 +232,7 @@ class Board(object):
             list_name = list_processor.name
             print("running list processor " + list_name)
 
-            input_list = self.__lists[list_name]
+            input_list = self._lists[list_name]
 
             # Pass the list with the same name as an argument
             input_dict = {'list': input_list, 'trello': self.__trello}

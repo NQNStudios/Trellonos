@@ -1,4 +1,5 @@
 import os
+import json
 
 from trello import TrelloApi
 import requests
@@ -9,7 +10,6 @@ BASE_URL = 'https://api.trello.com/' + API_VERSION + '/'
 FILTER_OPEN = 'open'
 FILTER_CLOSED = 'closed'
 FILTER_ALL = 'all'
-FILTER_DEFAULT = FILTER_ALL
 
 # CONVENIENCE CONVERSION FUNCTIONS
 
@@ -62,7 +62,7 @@ class Trello(object):
 
     # BOARDS #
 
-    def get_boards(self, board_filter=FILTER_DEFAULT):
+    def get_boards(self, board_filter=FILTER_OPEN):
         """ Retrieves an optionally filtered list of Trello boards """
 
         boards = self.__trello.members.get_board(
@@ -72,7 +72,7 @@ class Trello(object):
 
     # LISTS #
 
-    def get_lists(self, board, list_filter=FILTER_DEFAULT):
+    def get_lists(self, board, list_filter=FILTER_OPEN):
         """ Retrieves an optionally filtered list of Trello lists """
 
         lists = self.__trello.boards.get_list(board['id'], filter=list_filter)
@@ -95,9 +95,27 @@ class Trello(object):
         url = BASE_URL + 'lists/' + list['id'] + '/pos'
         requests.put(url, params=self.request_params({'value': position}))
 
+    def copy_list(self, list, board, override_params={}):
+        """ Copies the given list into a new list in the given board """
+        url = BASE_URL + 'lists/'
+
+        params = {}
+
+        params['name'] = list['name']
+        params['idBoard'] = board['id']
+        params['idListSource'] = list['id']
+
+        for override_param in override_params:
+            params[override_param] = override_params[override_param]
+
+        request = requests.post(url, data=self.request_params(params))
+
+        # Return the output
+        return json.loads(request.text)
+
     # CARDS #
 
-    def get_cards(self, list, card_filter=FILTER_DEFAULT, fields=None):
+    def get_cards(self, list, card_filter=FILTER_ALL, fields=None):
         """ Retrieves cards from the given list """
 
         cards = self.__trello.lists.get_card(
@@ -114,3 +132,32 @@ class Trello(object):
 
     def delete_card(self, card):
         self.__trello.cards.delete(card['id'])
+
+    def update_card_description(self, card, description):
+        self.__trello.cards.update_desc(card['id'], description)
+
+    def move_card(self, card, list):
+        # TODO this doesn't work
+        url = BASE_URL + 'cards/' + card['id'] + '/idList'
+        params = self.request_params({'value': list['id']})
+
+        requests.put(url, params=params)
+
+    def copy_card(self, card, list, override_params={}):
+        """ Copies the given card into a new card in the given list """
+        url = BASE_URL + 'cards/'
+
+        params = {}
+
+        params['due'] = card['due']
+        params['idList'] = list['id']
+        params['urlSource'] = 'null'
+        params['idCardSource'] = card['id']
+
+        for override_param in override_params:
+            params[override_param] = override_params[override_param]
+
+        request = requests.post(url, data=self.request_params(params))
+
+        # Return the output
+        return json.loads(request.text)
