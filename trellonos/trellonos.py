@@ -63,10 +63,7 @@ class Trellonos(object):
     def process(self):
         """ Runs all Trellonos processing of open boards """
 
-        self.__log.open_context('Trellonos processing.',
-                                logtools.PRIORITY_MEDIUM)
-
-        self.__log.message('Testing a message')
+        self.__log.open_context('Trellonos processing.')
 
         for board_key in self.__boards:
             # Run each board's processing

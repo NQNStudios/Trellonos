@@ -158,8 +158,8 @@ class Board(object):
         if new_position:
             self.sort_list(list_object, new_position)
         else:
-            raise ValueError('Tried to sort list between two \
-                             non-existent lists')
+            raise ValueError(
+                'Tried to sort list between two non-existent lists')
 
     def get_cards(self, type_name):
         """ Retrieve the cards from this board given a type name """
@@ -177,6 +177,16 @@ class Board(object):
 
         return cards
 
+    def is_processor(self, processor):
+        """ Tests whether a card is a processor """
+        if 'gist_id' not in processor.yaml_data:
+            return False
+
+        if 'gist_file' not in processor.yaml_data:
+            return False
+
+        return True
+
     def execute_processor(self, github, processor, input):
         """ Executes a board/list/card processor using the yaml data in the
         card which defines it """
@@ -192,6 +202,12 @@ class Board(object):
             if field not in input:  # of course, avoid overwrite error
                 input[field] = yaml_data[field]
 
+        # Pass the LogManager as input
+        input['log'] = self.__log
+
+        # Pass the Trello wrapper into the processor
+        input['trello'] = self.__trello
+
         # Pass the GithubManager into the processor as input
         input['github'] = github
 
@@ -204,29 +220,38 @@ class Board(object):
 
         # first, processors of the whole board
         for board_processor in self._board_processors:
+            if not self.is_processor(board_processor):
+                continue
+
             # send the board as an argument, and trello wrapper
-            input_dict = {'board': self, 'trello': self.__trello}
+            input_dict = {'board': self}
 
             # execute the board processor
             self.execute_processor(github, board_processor, input_dict)
 
         # Then list processors
         for list_processor in self._list_processors:
+            if not self.is_processor(list_processor):
+                continue
+
             list_name = list_processor.name
             input_list = self._lists[list_name]
 
             # Pass the list with the same name as an argument
-            input_dict = {'list': input_list, 'trello': self.__trello}
+            input_dict = {'list': input_list}
             self.execute_processor(github, list_processor, input_dict)
 
         # Then card processors
         for card_processor in self._card_processors:
+            if not self.is_processor(card_processor):
+                continue
+
             type_name = card_processor.name
             # process all cards of the given type name individually
             cards = self.get_cards(type_name)
 
             for card in cards:
-                input_dict = {'card': card, 'trello': self.__trello}
+                input_dict = {'card': card}
                 self.execute_processor(github, card_processor, input_dict)
 
         self.__log.close_context()
