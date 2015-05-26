@@ -1,10 +1,6 @@
 #! /bin/bash
 
-echo "Beginning to update Trellonos"
-
 source ~/.trellorc
 cd $ROOT_DIR
 
 git pull
-
-echo "Done updating Trellonos"

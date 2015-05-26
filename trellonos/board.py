@@ -19,7 +19,8 @@ SPECIAL_META_LISTS = {
 class Board(object):
     """ Wrapper of a Trello board """
 
-    def __init__(self, trello, trello_board, meta_board):
+    def __init__(self, log, trello, trello_board, meta_board):
+        self.__log = log
         self.__trello = trello
         self._board_data = trello_board
         self.__meta_board = meta_board
@@ -199,35 +200,28 @@ class Board(object):
 
     def process(self, github):
         """ Run each of this board's many types of processors """
+        self.__log.open_context('Processing board ' + self.name)
 
         # first, processors of the whole board
         for board_processor in self._board_processors:
-            print("running board processor " + board_processor.name)
-
             # send the board as an argument, and trello wrapper
             input_dict = {'board': self, 'trello': self.__trello}
 
             # execute the board processor
             self.execute_processor(github, board_processor, input_dict)
-            print("done running board processor " + board_processor.name)
 
         # Then list processors
         for list_processor in self._list_processors:
             list_name = list_processor.name
-            print("running list processor " + list_name)
-
             input_list = self._lists[list_name]
 
             # Pass the list with the same name as an argument
             input_dict = {'list': input_list, 'trello': self.__trello}
             self.execute_processor(github, list_processor, input_dict)
-            print("done running list processor " + list_name)
 
         # Then card processors
         for card_processor in self._card_processors:
             type_name = card_processor.name
-            print("running card processor " + type_name)
-
             # process all cards of the given type name individually
             cards = self.get_cards(type_name)
 
@@ -235,4 +229,4 @@ class Board(object):
                 input_dict = {'card': card, 'trello': self.__trello}
                 self.execute_processor(github, card_processor, input_dict)
 
-            print("done running card processor " + type_name)
+        self.__log.close_context()
