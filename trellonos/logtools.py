@@ -25,13 +25,21 @@ class LogManager(object):
 
         return cls(minimum_priority, tab_width)
 
-    def __message(self, text):
-        # Retrieve the depth of the debug log (current number of contexts)
-        context_depth = len(self._contexts)
+    @property
+    def _context_depth(self):
+        return len(self._contexts)
 
+    @property
+    def _current_priority(self):
+        if self._context_depth == 0:
+            return PRIORITY_MEDIUM
+
+        return self._context_priorities[self._context_depth - 1]
+
+    def _message(self, text):
         # Add a tab for each level of depth
         message = ''
-        for i in range(context_depth):
+        for i in range(self._context_depth):
             for i in range(self._tab_width):
                 message += ' '
 
@@ -40,25 +48,31 @@ class LogManager(object):
 
         print(message)
 
-    def open_context(self, context_name, priority=PRIORITY_MEDIUM):
-        self.__message('Opening debug context: ' + context_name)
-        self._contexts.append(context_name)
-        self._context_priorities.append(priority)
+    def open_context(self, context_name, priority=None):
+        if not priority:
+            priority = self._current_priority
 
+        # Announce the opening if priority warrants
+        self.message('Opening debug context: ' + context_name)
+
+        # Add the priority to the end of the list
+        # But if the current context is lower priority, keep the current
+        self._context_priorities.append(min(self._current_priority, priority))
+
+        # Add the name to the end of the list
+        # It is important that this call comes second!
+        self._contexts.append(context_name)
 
     def close_context(self):
+        # Retrieve the name of the current context, removing it from the list
         context_name = self._contexts.pop()
+
+        # Remove the current priority from the end of the list
         self._context_priorities.pop()
-        self.__message('Closing debug context: ' + context_name)
+
+        # Annouce the removal of the context
+        self._message('Closing debug context: ' + context_name)
 
     def message(self, text):
-        context_depth = len(self._contexts)
-
-        if context_depth == 0:
-            raise Exception(
-                'Tried to print from DebugManager without a context')
-
-        current_priority = self._context_priorities[context_depth - 1]
-
-        if current_priority >= self._minimum_priority:
-            self.__message(text)
+        if self._current_priority >= self._minimum_priority:
+            self._message(text)

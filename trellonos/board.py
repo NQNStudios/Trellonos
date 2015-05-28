@@ -221,6 +221,7 @@ class Board(object):
         # first, processors of the whole board
         for board_processor in self._board_processors:
             if not self.is_processor(board_processor):
+                self.__log.message('Skipping a non-processor')
                 continue
 
             # send the board as an argument, and trello wrapper
