@@ -68,7 +68,8 @@ class Card(object):
     @property
     def due_date(self):
         if 'due' in self.__card_data:
-            return dateutil.parser.parse(self.__card_data['due'])
+            if self.__card_data['due']:
+                return dateutil.parser.parse(self.__card_data['due'])
 
     @property
     def type_name(self):
@@ -97,8 +98,9 @@ class Card(object):
             if self.__inherited_data and key not in self.__inherited_data:
                 uninherited_yaml_data[key] = self.__yaml_data[key]
 
-        yaml_lines = yaml.safe_dump(uninherited_yaml_data, encoding='utf-8',
-                               allow_unicode=True, default_flow_style=False)
+        yaml_lines = yaml.safe_dump(uninherited_yaml_data,
+                                    encoding='utf-8', allow_unicode=True,
+                                    default_flow_style=False)
 
         return self.description + DIVIDER_LINE + yaml_lines
 
