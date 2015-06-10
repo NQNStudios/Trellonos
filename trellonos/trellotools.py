@@ -136,6 +136,18 @@ class Trello(object):
     def update_card_description(self, card, description):
         self.__trello.cards.update_desc(card['id'], description)
 
+    def add_card_member(self, card, member):
+        self.__trello.cards.new_member(card['id'], member['id'])
+
+    def subscribe_card(self, card):
+        self.add_card_member(card, self.__member)
+
+    def remove_card_member(self, card, member):
+        self.__trello.cards.delete_member_idMember(card['id'], member['id'])
+
+    def unsubscribe_card(self, card):
+        self.remove_card_member(card, self.__member)
+
     def move_card(self, card, list):
         # TODO this doesn't work
         url = BASE_URL + 'cards/' + card['id'] + '/idList'

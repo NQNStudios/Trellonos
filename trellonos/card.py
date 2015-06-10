@@ -159,6 +159,12 @@ class Card(object):
         self.__parent_list.closed_cards.remove(self)
         self.__parent_list.cards.append(self)
 
+    def subscribe(self, trello):
+        trello.subscribe_card(self.__card_data)
+
+    def unsubscribe(self, trello):
+        trello.unsubscribe_card(self.__card_data)
+
     def move(self, trello, destination_list):
         # TODO this is a hack which moves cards by copying them, then
         # archiving the original. It's done this way because the API card
