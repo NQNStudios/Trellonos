@@ -95,18 +95,29 @@ class Card(object):
 
         uninherited_yaml_data = {}
         for key in self.__yaml_data:
-            if self.__inherited_data and key not in self.__inherited_data:
+            print(key)
+            if not self.__inherited_data:
+                uninherited_yaml_data[key] = self.__yaml_data[key]
+            elif key not in self.__inherited_data:
                 uninherited_yaml_data[key] = self.__yaml_data[key]
 
         yaml_lines = yaml.safe_dump(uninherited_yaml_data,
                                     encoding='utf-8', allow_unicode=True,
                                     default_flow_style=False)
 
+        print(self.description + DIVIDER_LINE + yaml_lines)
         return self.description + DIVIDER_LINE + yaml_lines
 
     @property
     def yaml_data(self):
         return self.__yaml_data
+
+    def set_name(self, trello, name):
+        """ Rename this card. """
+        # Through the API
+        trello.update_card_name(self.__card_data, name)
+        # In instance fields
+        self.__card_data['name'] = name
 
     def set_description(self, trello, full_description):
         """ Gives this card a new description """

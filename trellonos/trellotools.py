@@ -79,6 +79,10 @@ class Trello(object):
 
         return lists
 
+    def update_list_name(self, list, name):
+        """ Changes the name of a list """
+        self.__trello.lists.update_name(list['id'], name)
+
     def update_list_closed(self, list, value):
         """ Opens or closes a list """
         self.__trello.lists.update_closed(list['id'],
@@ -123,32 +127,46 @@ class Trello(object):
 
         return cards
 
-    def update_card_closed(self, card, value):
-        self.__trello.cards.update_closed(card['id'],
-                                          boolean_to_string(value))
-
     def create_card(self, list, card_name, description=''):
+        """ Creates a new Trello card with a name and optional description """
         return self.__trello.cards.new(card_name, list['id'], description)
 
     def delete_card(self, card):
+        """ Deletes a Trello card completely """
         self.__trello.cards.delete(card['id'])
 
+    def update_card_name(self, card, name):
+        """ Renames a Trello card """
+        self.__trello.cards.update_name(card['id'], name)
+
     def update_card_description(self, card, description):
+        """ Changes the description of a Trello card """
         self.__trello.cards.update_desc(card['id'], description)
 
+    def update_card_closed(self, card, value):
+        """ Changes the archival status of a card (open/closed) """
+        self.__trello.cards.update_closed(card['id'],
+                                          boolean_to_string(value))
+
     def add_card_member(self, card, member):
+        """ Adds a member to a card, subscribing them to notifications
+        from it """
         self.__trello.cards.new_member(card['id'], member['id'])
 
     def subscribe_card(self, card):
+        """ Adds the member running Trellonos to a card """
         self.add_card_member(card, self.__member)
 
     def remove_card_member(self, card, member):
+        """ Removes a member from a Trello card """
         self.__trello.cards.delete_member_idMember(card['id'], member['id'])
 
     def unsubscribe_card(self, card):
+        """ Removes the member running Trellonos from a card """
         self.remove_card_member(card, self.__member)
 
     def move_card(self, card, list):
+        """ Moves a card to a new list """
         # TODO this doesn't work
         url = BASE_URL + 'cards/' + card['id'] + '/idList'
         params = self.request_params({'value': list['id']})

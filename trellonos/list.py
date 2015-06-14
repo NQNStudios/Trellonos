@@ -4,7 +4,7 @@ from card import Card
 class List(object):
 
     def __init__(self, trello, parent_board, trello_list):
-        self.__parent_board = parent_board
+        self._parent_board = parent_board
         self._list_data = trello_list
 
         self._cards = []
@@ -45,6 +45,16 @@ class List(object):
     def closed_cards(self):
         return self.__closed_cards
 
+    def set_name(self, trello, name):
+        """ Rename this list """
+        # Through the API
+        trello.update_list_name(self._list_data, name)
+        # In the parent list map
+        del self._parent_board.lists[self.name]
+        self._parent_board.lists[name] = self
+        # In instance fields
+        self._list_data['name'] = name
+
     def sort(self, trello, position):
         self._list_data['pos'] = position
         trello.sort_list(self._list_data, position)
@@ -57,7 +67,7 @@ class List(object):
         trello.update_list_closed(self._list_data, True)
 
         # Remove this list from the parent board's dictionary
-        self.__parent_board.lists.pop(self.name)
+        self._parent_board.lists.pop(self.name)
 
     def archive_all_cards(self, trello):
         """ Archives all cards in this list that are not already archived """
@@ -131,7 +141,7 @@ class List(object):
     def copy(self, trello, destination_board=None, override_params={}):
         """ Copies this list in the given Trellonos board or the same board """
         if not destination_board:
-            destination_board = self.__parent_board
+            destination_board = self._parent_board
 
         # Make the API call
         new_list = trello.copy_list(self._list_data,

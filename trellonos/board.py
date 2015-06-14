@@ -11,6 +11,7 @@ SPECIAL_META_LISTS = {
     'Archetypes': '_archetypes',
     'Board Processors': '_board_processors',
     'List Processors': '_list_processors',
+    'Regex List Processors': '_regex_list_processors',
     'List Defaults': '_list_defaults',
     'Card Processors': '_card_processors'
 }
@@ -224,6 +225,23 @@ class Board(object):
             # Pass the list with the same name as an argument
             input_dict = {'list': input_list}
             self.execute_processor(github, list_processor, input_dict)
+
+        # Then regex list processors
+        for regex_processor in self._regex_list_processors:
+            # retrieve the regex
+            list_regex = re.compile(regex_processor.name)
+
+            # run a loop to find all the lists matching the regex
+            matching_lists = []
+
+            for list_name in self._lists:
+                if re.search(list_regex, list_name):
+                    matching_lists.append(self._lists[list_name])
+
+            # now process each matching list
+            for input_list in matching_lists:
+                input_dict = {'list': input_list}
+                self.execute_processor(github, regex_processor, input_dict)
 
         # Then card processors
         for card_processor in self._card_processors:
