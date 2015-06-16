@@ -95,7 +95,6 @@ class Card(object):
 
         uninherited_yaml_data = {}
         for key in self.__yaml_data:
-            print(key)
             if not self.__inherited_data:
                 uninherited_yaml_data[key] = self.__yaml_data[key]
             elif key not in self.__inherited_data:
@@ -105,7 +104,6 @@ class Card(object):
                                     encoding='utf-8', allow_unicode=True,
                                     default_flow_style=False)
 
-        print(self.description + DIVIDER_LINE + yaml_lines)
         return self.description + DIVIDER_LINE + yaml_lines
 
     @property
