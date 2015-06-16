@@ -168,11 +168,18 @@ class Card(object):
         self.__parent_list.closed_cards.remove(self)
         self.__parent_list.cards.append(self)
 
+    def is_member(self, member):
+        return member['id'] in self.__card_data['idMembers']
+
     def subscribe(self, trello):
-        trello.subscribe_card(self.__card_data)
+        if not self.is_member(trello.member):
+            trello.subscribe_card(self.__card_data)
+            self.__card_data['idMembers'].append(trello.member['id'])
 
     def unsubscribe(self, trello):
-        trello.unsubscribe_card(self.__card_data)
+        if self.is_member(trello.member):
+            trello.unsubscribe_card(self.__card_data)
+            self.__card_data['idMembers'].remove(trello.member['id'])
 
     def move(self, trello, destination_list):
         # TODO this is a hack which moves cards by copying them, then

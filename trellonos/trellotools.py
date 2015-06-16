@@ -42,6 +42,11 @@ class Trello(object):
         token = os.environ['TRELLONOS_TOKEN']
         return cls(api_key, token)
 
+    # PROPERTIES #
+    @property
+    def member(self):
+        return self.__member
+
     # REQUESTS HELPERS #
 
     def request_params(self, extra_params={}):
