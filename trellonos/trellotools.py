@@ -164,7 +164,7 @@ class Trello(object):
 
     def remove_card_member(self, card, member):
         """ Removes a member from a Trello card """
-        self.__trello.cards.delete_member_idMember(card['id'], member['id'])
+        self.__trello.cards.delete_member_idMember(member['id'], card['id'])
 
     def unsubscribe_card(self, card):
         """ Removes the member running Trellonos from a card """
