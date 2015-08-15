@@ -84,6 +84,10 @@ class Trello(object):
 
         return lists
 
+    def get_list(self, list_id):
+        """ Retrieves a list given its ID """
+        return self.__trello.lists.get(list_id)
+
     def update_list_name(self, list, name):
         """ Changes the name of a list """
         self.__trello.lists.update_name(list['id'], name)

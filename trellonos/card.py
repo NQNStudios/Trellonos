@@ -54,6 +54,10 @@ class Card(object):
         self.parse_description(desc)
 
     @property
+    def card_data(self):
+        return self.__card_data
+
+    @property
     def name(self):
         return self.__card_data['name']
 
