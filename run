@@ -1,6 +1,7 @@
 #! /bin/bash
 
 source ~/.trellorc
+source ~/.brotherrc
 
 cd $SRC_DIR
 python main.py
