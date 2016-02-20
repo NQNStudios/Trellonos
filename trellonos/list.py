@@ -26,6 +26,10 @@ class List(object):
         return self._list_data['name']
 
     @property
+    def id(self):
+        return self._list_data['id']
+
+    @property
     def open(self):
         return not self._list_data['closed']
 
