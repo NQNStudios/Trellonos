@@ -62,3 +62,5 @@ docs/_build/
 
 # directory for local clones of Trellonos gists
 trellonos/gists/
+
+*.DS_STORE

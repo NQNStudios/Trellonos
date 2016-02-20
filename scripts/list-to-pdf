@@ -1,0 +1,5 @@
+#! /bin/bash
+
+source ~/.trellorc
+python "${0}.py" "$@" | echo
+open "list.pdf"

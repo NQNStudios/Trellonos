@@ -37,7 +37,7 @@ class Trello(object):
 
     @classmethod
     def from_environment_vars(cls):
-        # Construct a Trello wrapper using environment variable settings
+        """ Construct a Trello wrapper using environment variable settings """
         api_key = os.environ['TRELLONOS_API_KEY']
         token = os.environ['TRELLONOS_TOKEN']
         return cls(api_key, token)
