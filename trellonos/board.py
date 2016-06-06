@@ -171,7 +171,7 @@ class Board(object):
             tlist = self._lists[list_key]
 
             # For each list, iterate through cards
-            for card in tlist:
+            for card in tlist.cards:
                 # Add the card if it matches OR if we want all cards
                 if type_name == '<All>' or card.type_name == type_name:
                     cards.append(card)

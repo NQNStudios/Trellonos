@@ -45,7 +45,7 @@ class Card(object):
     def __init__(self, parent_list, trello_card):
         """ Constructs a Trellonos wrapper of the given card in the given
         parent list """
-        self.__parent_list = parent_list
+        self._parent_list = parent_list
         self.__card_data = trello_card
         self.__inherited_data = []
 
@@ -158,8 +158,8 @@ class Card(object):
         trello.update_card_closed(self.__card_data, True)
 
         # Move to the proper parent container
-        self.__parent_list.cards.remove(self)
-        self.__parent_list.closed_cards.append(self)
+        self._parent_list.cards.remove(self)
+        self._parent_list.closed_cards.append(self)
 
     def unarchive(self, trello):
         # update card data to reflect change
@@ -169,8 +169,8 @@ class Card(object):
         trello.update_card_closed(self.__card_data, False)
 
         # Move to the proper parent container
-        self.__parent_list.closed_cards.remove(self)
-        self.__parent_list.cards.append(self)
+        self._parent_list.closed_cards.remove(self)
+        self._parent_list.cards.append(self)
 
     def is_member(self, member):
         return member['id'] in self.__card_data['idMembers']
@@ -195,7 +195,7 @@ class Card(object):
     def copy(self, trello, destination_list=None, override_params={}):
         """ Copies this Card in the given Trellonos list or the same list """
         if not destination_list:
-            destination_list = self.__parent_list
+            destination_list = self._parent_list
 
         # Make the API call
         new_card = trello.copy_card(self.__card_data,

@@ -44,7 +44,7 @@ class LogManager(object):
                 message += ' '
 
         # Then print the message
-        message += text
+        message += str(text)
 
         print(message)
 
