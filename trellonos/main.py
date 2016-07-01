@@ -6,3 +6,6 @@ if __name__ == "__main__":
 
     # Run Trellonos processing
     trellonos.process()
+
+    # Dump all console output to a Trello card
+    trellonos.dump_log()

@@ -1,4 +1,5 @@
 import os
+import datetime
 
 PRIORITY_LOW = 0
 PRIORITY_MEDIUM = 1
@@ -17,6 +18,7 @@ class LogManager(object):
 
         self._contexts = []
         self._context_priorities = []
+        self._text = ''
 
     @classmethod
     def from_environment_vars(cls):
@@ -36,6 +38,12 @@ class LogManager(object):
 
         return self._context_priorities[self._context_depth - 1]
 
+    def _print(self, line):
+        # Print the line
+        self._text += line + '\n'
+        # Also save it in the log's text for dumping
+        print(line)
+
     def _message(self, text):
         # Add a tab for each level of depth
         message = ''
@@ -46,7 +54,7 @@ class LogManager(object):
         # Then print the message
         message += str(text)
 
-        print(message)
+        self._print(message)
 
     def open_context(self, context_name, priority=None):
         if not priority:
@@ -76,3 +84,23 @@ class LogManager(object):
     def message(self, text):
         if self._current_priority >= self._minimum_priority:
             self._message(text)
+
+    # Dump all previous output into a card in the given board
+    def dump(self, trello, board):
+        # Get the date and time
+        time = datetime.datetime.now()
+        # Place the new output card in a list for the current month
+        list_name = time.strftime('%B %Y')
+        # Create the list if it doesn't exist yet
+        if list_name not in board.lists.keys():
+            board.create_list(list_name)
+        # Get the list
+        month_list = board.lists[list_name]
+        # Create a card for this session
+        card_name = time.strftime('%m/%d %H:%m')
+        output_card = month_list.create_card(trello, card_name)
+        # Dump all output into the output card
+        output = '```\n' + self._text + '```\n'
+        output_card.set_description(trello, output)
+        # Clear text stored in the log
+        self._text = ''

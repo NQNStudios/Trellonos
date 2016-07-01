@@ -2,12 +2,12 @@ import re
 
 from trellotools import Trello
 from githubtools import GithubManager
-import logtools
 from logtools import LogManager
 from board import Board
 
 
 TRELLONOS_REGEX = re.compile('^<.+>$')
+OUTPUT_BOARD_NAME = 'Trellonos Output'
 
 
 class Trellonos(object):
@@ -72,3 +72,6 @@ class Trellonos(object):
             board.process(self.__github)
 
         self.__log.close_context()
+
+    def dump_log(self):
+        self.__log.dump(self.__trello, self.boards[OUTPUT_BOARD_NAME])
