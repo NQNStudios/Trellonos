@@ -97,7 +97,7 @@ class LogManager(object):
         # Get the list
         month_list = board.lists[list_name]
         # Create a card for this session
-        card_name = time.strftime('%m/%d %H:%m')
+        card_name = time.strftime('%c')
         output_card = month_list.create_card(trello, card_name)
         # Dump all output into the output card
         output = '```\n' + self._text + '```\n'
