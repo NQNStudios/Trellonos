@@ -76,6 +76,12 @@ class Card(object):
                 return dateutil.parser.parse(self.__card_data['due'])
 
     @property
+    def last_date_modified(self):
+        if 'dateLastActivity' in self.__card_data:
+            if self.__card_data['dateLastActivity']:
+                return dateutil.parser.parse(self.__card_data['dateLastActivity'])
+
+    @property
     def type_name(self):
         """ The type name of this card (for archetypal inheritance) """
         if 'type' not in self.__yaml_data:
