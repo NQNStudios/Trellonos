@@ -14,16 +14,16 @@ class Trellonos(object):
     """ Top-level container of Trello data and core processor """
 
     def __init__(self, trello, github, log):
-        self.__trello = trello
-        self.__github = github
-        self.__log = log
+        self._trello = trello
+        self._github = github
+        self._log = log
 
-        self.__boards = {}
+        self._boards = {}
 
         meta_boards = {}
         non_meta_boards = {}
 
-        self.__log.open_context('Trellonos initialization.')
+        self._log.open_context('Trellonos initialization.')
 
         # Iterate and initialize board objects from subscribed Trello boards
         for trello_board in trello.get_boards():
@@ -45,9 +45,9 @@ class Trellonos(object):
 
             board_object = Board(log, trello, normal_board, meta_board)
 
-            self.__boards[board_name] = board_object
+            self._boards[board_name] = board_object
 
-        self.__log.close_context()
+        self._log.close_context()
 
     @classmethod
     def from_environment_vars(cls):
@@ -58,20 +58,20 @@ class Trellonos(object):
 
     @property
     def boards(self):
-        return self.__boards
+        return self._boards
 
     def process(self):
         """ Runs all Trellonos processing of open boards """
 
-        self.__log.open_context('Trellonos processing.')
+        self._log.open_context('Trellonos processing.')
 
-        for board_key in self.__boards:
+        for board_key in self._boards:
             # Run each board's processing
-            board = self.__boards[board_key]
+            board = self._boards[board_key]
 
-            board.process(self.__github)
+            board.process(self._github)
 
-        self.__log.close_context()
+        self._log.close_context()
 
     def dump_log(self):
-        self.__log.dump(self.__trello, self.boards[OUTPUT_BOARD_NAME])
+        self._log.dump(self._trello, self.boards[OUTPUT_BOARD_NAME])

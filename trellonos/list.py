@@ -13,7 +13,7 @@ class List(object):
         # store contained cards in a list
         for trello_card in trello.get_cards(trello_list):
             # in trellonos form
-            card = Card(self, trello_card)
+            card = Card(trello, self, trello_card)
 
             # separated open/closed
             if card.open:
@@ -110,7 +110,7 @@ class List(object):
         container and returns the Trellonos wrapper object """
 
         trello_card = trello.create_card(self._list_data, name)
-        new_card = Card(self, trello_card)
+        new_card = Card(trello, self, trello_card)
         self._cards.append(new_card)
 
         return new_card

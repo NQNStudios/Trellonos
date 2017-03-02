@@ -4,6 +4,7 @@ import json
 from trello import TrelloApi
 import requests
 
+
 API_VERSION = '1'
 BASE_URL = 'https://api.trello.com/' + API_VERSION + '/'
 
@@ -30,10 +31,10 @@ class Trello(object):
         self.__token = token
 
         # Make a Trello Python API wrapper object for the things it CAN do
-        self.__trello = TrelloApi(api_key, token)
+        self._trello = TrelloApi(api_key, token)
 
         # Retrieve this Trello user
-        self.__member = self.__trello.members.get('me')
+        self._member = self._trello.members.get('me')
 
     @classmethod
     def from_environment_vars(cls):
@@ -45,7 +46,7 @@ class Trello(object):
     # PROPERTIES #
     @property
     def member(self):
-        return self.__member
+        return self._member
 
     # REQUESTS HELPERS #
 
@@ -70,8 +71,8 @@ class Trello(object):
     def get_boards(self, board_filter=FILTER_OPEN):
         """ Retrieves an optionally filtered list of Trello boards """
 
-        boards = self.__trello.members.get_board(
-            self.__member['id'], filter=board_filter)
+        boards = self._trello.members.get_board(
+            self._member['id'], filter=board_filter)
 
         return boards
 
@@ -80,26 +81,26 @@ class Trello(object):
     def get_lists(self, board, list_filter=FILTER_OPEN):
         """ Retrieves an optionally filtered list of Trello lists """
 
-        lists = self.__trello.boards.get_list(board['id'], filter=list_filter)
+        lists = self._trello.boards.get_list(board['id'], filter=list_filter)
 
         return lists
 
     def get_list(self, list_id):
         """ Retrieves a list given its ID """
-        return self.__trello.lists.get(list_id)
+        return self._trello.lists.get(list_id)
 
     def update_list_name(self, list, name):
         """ Changes the name of a list """
-        self.__trello.lists.update_name(list['id'], name)
+        self._trello.lists.update_name(list['id'], name)
 
     def update_list_closed(self, list, value):
         """ Opens or closes a list """
-        self.__trello.lists.update_closed(list['id'],
+        self._trello.lists.update_closed(list['id'],
                                           boolean_to_string(value))
 
     def create_list(self, board, list_name):
         """ Creates a new list in the given board """
-        return self.__trello.boards.new_list(board['id'], list_name)
+        return self._trello.boards.new_list(board['id'], list_name)
 
     def sort_list(self, list, position):
         """ Sorts the given list to the given position. Position can be
@@ -131,48 +132,48 @@ class Trello(object):
     def get_cards(self, list, card_filter=FILTER_ALL, fields=None):
         """ Retrieves cards from the given list """
 
-        cards = self.__trello.lists.get_card(
+        cards = self._trello.lists.get_card(
             list['id'], filter=card_filter, fields=fields)
 
         return cards
 
     def create_card(self, list, card_name, description=''):
         """ Creates a new Trello card with a name and optional description """
-        return self.__trello.cards.new(card_name, list['id'], description)
+        return self._trello.cards.new(card_name, list['id'], description)
 
     def delete_card(self, card):
         """ Deletes a Trello card completely """
-        self.__trello.cards.delete(card['id'])
+        self._trello.cards.delete(card['id'])
 
     def update_card_name(self, card, name):
         """ Renames a Trello card """
-        self.__trello.cards.update_name(card['id'], name)
+        self._trello.cards.update_name(card['id'], name)
 
     def update_card_description(self, card, description):
         """ Changes the description of a Trello card """
-        self.__trello.cards.update_desc(card['id'], description)
+        self._trello.cards.update_desc(card['id'], description)
 
     def update_card_closed(self, card, value):
         """ Changes the archival status of a card (open/closed) """
-        self.__trello.cards.update_closed(card['id'],
+        self._trello.cards.update_closed(card['id'],
                                           boolean_to_string(value))
 
     def add_card_member(self, card, member):
         """ Adds a member to a card, subscribing them to notifications
         from it """
-        self.__trello.cards.new_member(card['id'], member['id'])
+        self._trello.cards.new_member(card['id'], member['id'])
 
     def subscribe_card(self, card):
         """ Adds the member running Trellonos to a card """
-        self.add_card_member(card, self.__member)
+        self.add_card_member(card, self._member)
 
     def remove_card_member(self, card, member):
         """ Removes a member from a Trello card """
-        self.__trello.cards.delete_member_idMember(member['id'], card['id'])
+        self._trello.cards.delete_member_idMember(member['id'], card['id'])
 
     def unsubscribe_card(self, card):
         """ Removes the member running Trellonos from a card """
-        self.remove_card_member(card, self.__member)
+        self.remove_card_member(card, self._member)
 
     def move_card(self, card, list):
         """ Moves a card to a new list """
@@ -200,3 +201,16 @@ class Trello(object):
 
         # Return the output
         return json.loads(request.text)
+
+    # CHECKLISTS
+
+    def get_checklist(self, id, checklist_filter=FILTER_ALL, fields=None):
+        """ Retrieves the checklist corresponding to the given id """
+
+        checklist = self._trello.checklists.get(
+            id, fields=fields)
+
+        # Make sure checklist is not an array
+        print(checklist)
+
+        return checklist
