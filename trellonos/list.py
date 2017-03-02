@@ -4,6 +4,7 @@ from card import Card
 class List(object):
 
     def __init__(self, trello, parent_board, trello_list):
+        self._trello = trello
         self._parent_board = parent_board
         self._list_data = trello_list
 
@@ -153,7 +154,7 @@ class List(object):
                                     override_params)
 
         # Make the wrapper
-        list_object = List(destination_board, new_list)
+        list_object = List(self._trello, destination_board, new_list)
         # Add the wrapper to the destination board's container
         destination_board._lists[list_object.name] = list_object
 

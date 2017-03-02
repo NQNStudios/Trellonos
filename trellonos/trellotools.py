@@ -210,7 +210,4 @@ class Trello(object):
         checklist = self._trello.checklists.get(
             id, fields=fields)
 
-        # Make sure checklist is not an array
-        print(checklist)
-
         return checklist

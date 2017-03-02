@@ -47,6 +47,7 @@ class Card(object):
     def __init__(self, trello, parent_list, trello_card):
         """ Constructs a Trellonos wrapper of the given card in the given
         parent list """
+        self._trello = trello
         self._parent_list = parent_list
         self._card_data = trello_card
         self._inherited_data = []
@@ -224,7 +225,7 @@ class Card(object):
                                     override_params)
 
         # Make the wrapper
-        card_object = Card(destination_list, new_card)
+        card_object = Card(self._trello, destination_list, new_card)
         # Add the wrapper to the destination list's container
         destination_list._cards.append(card_object)
 
