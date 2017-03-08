@@ -21,14 +21,14 @@ class Board(object):
     """ Wrapper of a Trello board """
 
     def __init__(self, log, trello, trello_board, meta_board):
-        self.__log = log
-        self.__trello = trello
+        self._log = log
+        self._trello = trello
         self._board_data = trello_board
-        self.__meta_board = meta_board
+        self._meta_board = meta_board
 
         self._lists = {}
 
-        self.__meta_lists = {}
+        self._meta_lists = {}
 
         # Set special meta lists to empty before they are found
         for list_name in SPECIAL_META_LISTS:
@@ -57,7 +57,7 @@ class Board(object):
             # handle regular meta lists
             else:
                 # map the list
-                self.__meta_lists[list_name] = meta_list_object
+                self._meta_lists[list_name] = meta_list_object
 
             # closed meta lists will be discarded altogether by API filter
 
@@ -110,15 +110,15 @@ class Board(object):
 
     @property
     def meta_lists(self):
-        return self.__meta_lists
+        return self._meta_lists
 
     def create_list(self, name):
         """ Creates a list in this board. Adds the list to this
         board's dictionary and returns the Trellonos wrapper object """
 
-        trello_list = self.__trello.create_list(self._board_data, name)
+        trello_list = self._trello.create_list(self._board_data, name)
 
-        new_list = List(self.__trello, self, trello_list)
+        new_list = List(self._trello, self, trello_list)
         self._lists[name] = new_list
 
         return new_list
@@ -127,7 +127,7 @@ class Board(object):
         """ Sorts the given list (supplied as Trellonos  wrapper) to the given
         position. Position can be 'top', 'bottom', or a positive number """
 
-        list_object.sort(self.__trello, position)
+        list_object.sort(self._trello, position)
 
     def sort_list_between(self, list_object, list_a, list_b):
         """ Sorts the given list (supplied as Trellonos wrapper) to a
@@ -194,20 +194,24 @@ class Board(object):
                 input[field] = yaml_data[field]
 
         # Pass the LogManager as input
-        input['log'] = self.__log
+        input['log'] = self._log
 
         # Pass the Trello wrapper into the processor
-        input['trello'] = self.__trello
+        input['trello'] = self._trello
 
         # Pass the GithubManager into the processor as input
         input['github'] = github
 
+        # Pass the whole processor card into the processor as input
+        # (For access to things such as checklists)
+        input['processor'] = processor
+
         # Return the output dictionary
-        return github.execute_gist(gist_id, gist_file, self.__log, input)
+        return github.execute_gist(gist_id, gist_file, self._log, input)
 
     def process(self, github):
         """ Run each of this board's many types of processors """
-        self.__log.open_context('Processing board ' + self.name)
+        self._log.open_context('Processing board ' + self.name)
 
         # first, processors of the whole board
         for board_processor in self._board_processors:
@@ -253,4 +257,4 @@ class Board(object):
                 input_dict = {'card': card}
                 self.execute_processor(github, card_processor, input_dict)
 
-        self.__log.close_context()
+        self._log.close_context()

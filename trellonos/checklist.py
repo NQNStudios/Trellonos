@@ -25,4 +25,4 @@ class Checklist(object):
         return self._checkitems
 
     def is_checked(self, item_name):
-        return self._checkitems[item_name]
+        return item_name in self._checkitems and self._checkitems[item_name]
