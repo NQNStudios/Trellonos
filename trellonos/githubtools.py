@@ -76,8 +76,12 @@ class GithubManager(object):
                     script_block += '\n' + script_lines[current_line + i]
                     i += 1  # almost forgot!
 
+                    # If the next line is tab-shifted left, end the block
                     if not (next_line[0:4] == '    ' or next_line == ''):
-                        break
+                        # Unless it is an elif: or an else: line
+                        if not (next_line[0:5] == 'else:' or
+                                next_line[0:5] == 'elif:'):
+                            break
 
                 current_line += (i - 1)
 
