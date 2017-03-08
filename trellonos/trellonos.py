@@ -2,6 +2,7 @@ import re
 
 from trellotools import Trello
 from githubtools import GithubManager
+from pythontools import ScriptManager
 from logtools import LogManager
 from board import Board
 
@@ -16,6 +17,7 @@ class Trellonos(object):
     def __init__(self, trello, github, log):
         self._trello = trello
         self._github = github
+        self._scriptManager = ScriptManager()
         self._log = log
 
         self._boards = {}
@@ -69,9 +71,22 @@ class Trellonos(object):
             # Run each board's processing
             board = self._boards[board_key]
 
-            board.process(self._github)
+            board.process(self, self._github)
 
         self._log.close_context()
+
+    def evaluate_markup(self, text):
+        """ Return the given string with all markup expressions evaluated
+        and filled in """
+        markup_regex = re.compile('\{\{.+\}\}')
+
+        for match in re.findall(markup_regex, text):
+            print(match)
+            text = text.replace(match,
+                                self._scriptManager.evaluate_expression(
+                                    "input['trellonos']." + match[2:-2].strip(), self._log, self))
+
+        return text
 
     def dump_log(self):
         self._log.dump(self._trello, self.boards[OUTPUT_BOARD_NAME])

@@ -178,7 +178,7 @@ class Board(object):
 
         return cards
 
-    def execute_processor(self, github, processor, input):
+    def execute_processor(self, scriptManager, github, processor, input):
         """ Executes a board/list/card processor using the yaml data in the
         card which defines it """
 
@@ -207,9 +207,9 @@ class Board(object):
         input['processor'] = processor
 
         # Return the output dictionary
-        return github.execute_gist(gist_id, gist_file, self._log, input)
+        return github.execute_gist(scriptManager, gist_id, gist_file, self._log, input)
 
-    def process(self, github):
+    def process(self, trellonos, github, scriptManager):
         """ Run each of this board's many types of processors """
         self._log.open_context('Processing board ' + self.name)
 
@@ -219,7 +219,7 @@ class Board(object):
             input_dict = {'board': self}
 
             # execute the board processor
-            self.execute_processor(github, board_processor, input_dict)
+            self.execute_processor(scriptManager, github, board_processor, input_dict)
 
         # Then list processors
         for list_processor in self._list_processors:
@@ -228,7 +228,7 @@ class Board(object):
 
             # Pass the list with the same name as an argument
             input_dict = {'list': input_list}
-            self.execute_processor(github, list_processor, input_dict)
+            self.execute_processor(scriptManager, github, list_processor, input_dict)
 
         # Then regex list processors
         for regex_processor in self._regex_list_processors:
@@ -245,7 +245,7 @@ class Board(object):
             # now process each matching list
             for input_list in matching_lists:
                 input_dict = {'list': input_list}
-                self.execute_processor(github, regex_processor, input_dict)
+                self.execute_processor(scriptManager, github, regex_processor, input_dict)
 
         # Then card processors
         for card_processor in self._card_processors:
@@ -255,6 +255,6 @@ class Board(object):
 
             for card in cards:
                 input_dict = {'card': card}
-                self.execute_processor(github, card_processor, input_dict)
+                self.execute_processor(scriptManager, github, card_processor, input_dict)
 
         self._log.close_context()
