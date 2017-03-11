@@ -3,7 +3,7 @@ import re
 from trellotools import Trello
 from githubtools import GithubManager
 from pythontools import ScriptManager
-from logtools import LogManager
+import logtools as log
 from board import Board
 
 
@@ -14,18 +14,17 @@ OUTPUT_BOARD_NAME = 'Trellonos Output'
 class Trellonos(object):
     """ Top-level container of Trello data and core processor """
 
-    def __init__(self, trello, github, log):
+    def __init__(self, trello, github):
         self._trello = trello
         self._github = github
-        self._scriptManager = ScriptManager()
-        self._log = log
+        self._scriptManager = ScriptManager(self)
 
         self._boards = {}
 
         meta_boards = {}
         non_meta_boards = {}
 
-        self._log.open_context('Trellonos initialization.')
+        log.open_context('Trellonos initialization.')
 
         # Iterate and initialize board objects from subscribed Trello boards
         for trello_board in trello.get_boards():
@@ -49,44 +48,42 @@ class Trellonos(object):
 
             self._boards[board_name] = board_object
 
-        self._log.close_context()
+        log.close_context()
 
     @classmethod
     def from_environment_vars(cls):
         trello = Trello.from_environment_vars()
         github = GithubManager.from_environment_vars()
-        log = LogManager.from_environment_vars()
-        return cls(trello, github, log)
+        return cls(trello, github)
 
     @property
     def boards(self):
         return self._boards
 
+    @property
+    def trello(self):
+        return self._trello
+
+    @property
+    def scriptManager(self):
+        return self._scriptManager
+
     def process(self):
         """ Runs all Trellonos processing of open boards """
 
-        self._log.open_context('Trellonos processing.')
+        log.open_context('Trellonos processing.')
 
-        for board_key in self._boards:
-            # Run each board's processing
-            board = self._boards[board_key]
+        # Run each board's processing
+        for name in self._boards:
+            board = self._boards[name]
+            board.process(self, self._github, self._scriptManager)
 
-            board.process(self, self._github)
+        # Then fill each board's markup fields
+        for name in self._boards:
+            board = self._boards[name]
+            board.fill_cards_markup(self._scriptManager)
 
-        self._log.close_context()
-
-    def evaluate_markup(self, text):
-        """ Return the given string with all markup expressions evaluated
-        and filled in """
-        markup_regex = re.compile('\{\{.+\}\}')
-
-        for match in re.findall(markup_regex, text):
-            print(match)
-            text = text.replace(match,
-                                self._scriptManager.evaluate_expression(
-                                    "input['trellonos']." + match[2:-2].strip(), self._log, self))
-
-        return text
+        log.close_context()
 
     def dump_log(self):
-        self._log.dump(self._trello, self.boards[OUTPUT_BOARD_NAME])
+        log.dump(self._trello, self.boards[OUTPUT_BOARD_NAME])

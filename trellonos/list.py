@@ -1,3 +1,4 @@
+import random
 from card import Card
 
 
@@ -165,6 +166,10 @@ class List(object):
         for card in self._cards:
             card.copy(trello, destination_list)
 
+    def random_card(self):
+        ''' Just return a random card from this list '''
+        return self.cards[random.randrange(len(self.cards))]
+
     # List functions
     def __getitem__(self, index):
         return self._cards[index]
@@ -180,3 +185,9 @@ class List(object):
         else:
             self.__index += 1
             return self.cards[self.__index - 1]
+
+    # Markup functions
+    def fill_cards_markup(self, scriptManager):
+        """ Fill in all markup expressions in cards contained by this list """
+        for card in self.cards:
+            card.fill_markup(scriptManager)

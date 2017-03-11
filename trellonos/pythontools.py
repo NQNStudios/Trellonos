@@ -2,7 +2,8 @@ class ScriptManager(object):
     """ Wrapper for the execution of embedded Python code in a hopefully
     secure enough way """
 
-    def __init__(self):
+    def __init__(self, trellonos):
+        self._trellonos = trellonos
         # pass data into and out of the scripts and expressions we run
         self.__interface = {
             'input': {},
@@ -73,7 +74,7 @@ class ScriptManager(object):
 
         return self.__interface['output']
 
-    def evaluate_expression(self, expression, log, trellonos):
+    def evaluate_expression(self, expression, log):
         """ Evaluate a single python expression and return the result """
         log.open_context('Evaluating expression ' + expression)
 
@@ -82,8 +83,23 @@ class ScriptManager(object):
         # Execute the expression with the given Trellonos object as the only
         # input
         result = self.execute(
-            prefix + expression, log, { 'trellonos': trellonos })
+            prefix + expression, log, { 'trellonos': self._trellonos })
 
         log.close_context()
 
         return result['result']
+
+    def evaluate_markup(self, text, log):
+        """ Return the given string with all markup expressions evaluated
+        and filled in """
+        markup_regex = re.compile('\{\{.+\}\}')
+
+        for match in re.findall(markup_regex, text):
+            print(match)
+            text = text.replace(
+                match,
+                self.evaluate_expression(
+                        "input['trellonos']." + match[2:-2].strip(), log))
+
+        return text
+

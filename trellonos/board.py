@@ -1,6 +1,7 @@
 import re
 
 from list import List
+import logtools as log
 
 
 METADATA_REGEX = re.compile('^<.+>$')
@@ -20,8 +21,7 @@ SPECIAL_META_LISTS = {
 class Board(object):
     """ Wrapper of a Trello board """
 
-    def __init__(self, log, trello, trello_board, meta_board):
-        self._log = log
+    def __init__(self, trello, trello_board, meta_board):
         self._trello = trello
         self._board_data = trello_board
         self._meta_board = meta_board
@@ -194,7 +194,7 @@ class Board(object):
                 input[field] = yaml_data[field]
 
         # Pass the LogManager as input
-        input['log'] = self._log
+        input['log'] = log
 
         # Pass the Trello wrapper into the processor
         input['trello'] = self._trello
@@ -207,11 +207,11 @@ class Board(object):
         input['processor'] = processor
 
         # Return the output dictionary
-        return github.execute_gist(scriptManager, gist_id, gist_file, self._log, input)
+        return github.execute_gist(scriptManager, gist_id, gist_file, input)
 
     def process(self, trellonos, github, scriptManager):
         """ Run each of this board's many types of processors """
-        self._log.open_context('Processing board ' + self.name)
+        log.open_context('Processing board ' + self.name)
 
         # first, processors of the whole board
         for board_processor in self._board_processors:
@@ -257,4 +257,11 @@ class Board(object):
                 input_dict = {'card': card}
                 self.execute_processor(scriptManager, github, card_processor, input_dict)
 
-        self._log.close_context()
+        log.close_context()
+
+    # Markup functions
+    def fill_cards_markup(self, scriptManager):
+        """ Fill all markup expressions in cards contained by this board """
+        for name in self.lists:
+            self.lists[name].fill_cards_markup(scriptManager)
+

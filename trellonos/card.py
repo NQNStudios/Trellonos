@@ -234,3 +234,11 @@ class Card(object):
     @property
     def checklists(self):
         return self._checklists
+
+    def fill_markup(self, trello, scriptManager):
+        """ Replace all markup expressions in the card's name and description
+        with their values """
+        self.set_name(trello, scriptManager.evaluate_markup(self.name))
+
+        self.set_description(
+            trello, scriptManager.evaluate_markup(self.full_description))
