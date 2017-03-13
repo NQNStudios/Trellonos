@@ -19,6 +19,8 @@ _context_priorities = []
 _text = ''
 
 def init_from_environment_vars():
+    global _minimum_priority
+    global _tab_width
     _minimum_priority = int(os.environ['TRELLONOS_DEBUG_PRIORITY'])
     _tab_width = int(os.environ['TRELLONOS_TAB_WIDTH'])
 
@@ -26,12 +28,13 @@ def _context_depth():
     return len(_contexts)
 
 def _current_priority():
-    if _context_depth == 0:
+    if _context_depth() == 0:
         return PRIORITY_MEDIUM
 
-    return _context_priorities[_context_depth - 1]
+    return _context_priorities[_context_depth() - 1]
 
 def _print(line):
+    global _text
     # Print the line
     _text += line + '\n'
     # Also save it in the log's text for dumping
@@ -40,7 +43,7 @@ def _print(line):
 def _message(text):
     # Add a tab for each level of depth
     message = ''
-    for i in range(_context_depth):
+    for i in range(_context_depth()):
         for i in range(_tab_width):
             message += ' '
 
@@ -80,6 +83,8 @@ def message(text):
 
 # Dump all previous output into a card in the given board
 def dump(trello, board):
+    global _text
+
     # Get the date and time
     time = datetime.datetime.now()
     # Place the new output card in a list for the current month

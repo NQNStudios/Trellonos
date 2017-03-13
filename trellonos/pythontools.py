@@ -1,3 +1,6 @@
+import logtools as log
+import re
+
 class ScriptManager(object):
     """ Wrapper for the execution of embedded Python code in a hopefully
     secure enough way """
@@ -10,7 +13,7 @@ class ScriptManager(object):
             'output': {}
         }
 
-    def execute(self, code, log, input={}, continue_on_error=True):
+    def execute(self, code, input={}, continue_on_error=True):
         self.__interface['input'] = input  # provide the given input
         self.__interface['output'] = {}  # clear previous output
 
@@ -74,7 +77,7 @@ class ScriptManager(object):
 
         return self.__interface['output']
 
-    def evaluate_expression(self, expression, log):
+    def evaluate_expression(self, expression):
         """ Evaluate a single python expression and return the result """
         log.open_context('Evaluating expression ' + expression)
 
@@ -83,13 +86,13 @@ class ScriptManager(object):
         # Execute the expression with the given Trellonos object as the only
         # input
         result = self.execute(
-            prefix + expression, log, { 'trellonos': self._trellonos })
+            prefix + expression, { 'trellonos': self._trellonos })
 
         log.close_context()
 
         return result['result']
 
-    def evaluate_markup(self, text, log):
+    def evaluate_markup(self, text):
         """ Return the given string with all markup expressions evaluated
         and filled in """
         markup_regex = re.compile('\{\{.+\}\}')
@@ -99,7 +102,7 @@ class ScriptManager(object):
             text = text.replace(
                 match,
                 self.evaluate_expression(
-                        "input['trellonos']." + match[2:-2].strip(), log))
+                        "input['trellonos']." + match[2:-2].strip()))
 
         return text
 

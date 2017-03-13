@@ -17,7 +17,7 @@ class Trellonos(object):
     def __init__(self, trello, github):
         self._trello = trello
         self._github = github
-        self._scriptManager = ScriptManager(self)
+        self._script_manager = ScriptManager(self)
 
         self._boards = {}
 
@@ -44,7 +44,7 @@ class Trellonos(object):
             normal_board = non_meta_boards[board_name]
             meta_board = meta_boards[board_name]
 
-            board_object = Board(log, trello, normal_board, meta_board)
+            board_object = Board(trello, normal_board, meta_board)
 
             self._boards[board_name] = board_object
 
@@ -65,8 +65,8 @@ class Trellonos(object):
         return self._trello
 
     @property
-    def scriptManager(self):
-        return self._scriptManager
+    def script_manager(self):
+        return self._script_manager
 
     def process(self):
         """ Runs all Trellonos processing of open boards """
@@ -76,12 +76,12 @@ class Trellonos(object):
         # Run each board's processing
         for name in self._boards:
             board = self._boards[name]
-            board.process(self, self._github, self._scriptManager)
+            board.process(self, self._github, self._script_manager)
 
         # Then fill each board's markup fields
         for name in self._boards:
             board = self._boards[name]
-            board.fill_cards_markup(self._scriptManager)
+            board.fill_cards_markup(self._script_manager)
 
         log.close_context()
 

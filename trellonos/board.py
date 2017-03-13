@@ -178,7 +178,7 @@ class Board(object):
 
         return cards
 
-    def execute_processor(self, scriptManager, github, processor, input):
+    def execute_processor(self, script_manager, github, processor, input):
         """ Executes a board/list/card processor using the yaml data in the
         card which defines it """
 
@@ -206,10 +206,15 @@ class Board(object):
         # (For access to things such as checklists)
         input['processor'] = processor
 
-        # Return the output dictionary
-        return github.execute_gist(scriptManager, gist_id, gist_file, input)
+        # Pass the scriptmanager to processor as input (for access to
+        # markup evaluation)
+        # TODO is this secure?
+        input['script_manager'] = script_manager
 
-    def process(self, trellonos, github, scriptManager):
+        # Return the output dictionary
+        return github.execute_gist(script_manager, gist_id, gist_file, input)
+
+    def process(self, trellonos, github, script_manager):
         """ Run each of this board's many types of processors """
         log.open_context('Processing board ' + self.name)
 
@@ -219,7 +224,7 @@ class Board(object):
             input_dict = {'board': self}
 
             # execute the board processor
-            self.execute_processor(scriptManager, github, board_processor, input_dict)
+            self.execute_processor(script_manager, github, board_processor, input_dict)
 
         # Then list processors
         for list_processor in self._list_processors:
@@ -228,7 +233,7 @@ class Board(object):
 
             # Pass the list with the same name as an argument
             input_dict = {'list': input_list}
-            self.execute_processor(scriptManager, github, list_processor, input_dict)
+            self.execute_processor(script_manager, github, list_processor, input_dict)
 
         # Then regex list processors
         for regex_processor in self._regex_list_processors:
@@ -245,7 +250,7 @@ class Board(object):
             # now process each matching list
             for input_list in matching_lists:
                 input_dict = {'list': input_list}
-                self.execute_processor(scriptManager, github, regex_processor, input_dict)
+                self.execute_processor(script_manager, github, regex_processor, input_dict)
 
         # Then card processors
         for card_processor in self._card_processors:
@@ -255,13 +260,13 @@ class Board(object):
 
             for card in cards:
                 input_dict = {'card': card}
-                self.execute_processor(scriptManager, github, card_processor, input_dict)
+                self.execute_processor(script_manager, github, card_processor, input_dict)
 
         log.close_context()
 
     # Markup functions
-    def fill_cards_markup(self, scriptManager):
+    def fill_cards_markup(self, script_manager):
         """ Fill all markup expressions in cards contained by this board """
         for name in self.lists:
-            self.lists[name].fill_cards_markup(scriptManager)
+            self.lists[name].fill_cards_markup(script_manager)
 

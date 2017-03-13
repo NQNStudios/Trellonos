@@ -187,7 +187,7 @@ class List(object):
             return self.cards[self.__index - 1]
 
     # Markup functions
-    def fill_cards_markup(self, scriptManager):
+    def fill_cards_markup(self, script_manager):
         """ Fill in all markup expressions in cards contained by this list """
         for card in self.cards:
-            card.fill_markup(scriptManager)
+            card.fill_markup(self._trello, script_manager)

@@ -126,11 +126,16 @@ class Card(object):
             elif key not in self._inherited_data:
                 uninherited_yaml_data[key] = self._yaml_data[key]
 
-        yaml_lines = yaml.safe_dump(uninherited_yaml_data,
-                                    encoding='utf-8', allow_unicode=True,
-                                    default_flow_style=False)
+        # Only add the YAML divider if there's actually yaml data!
+        if len(uninherited_yaml_data) > 0:
+            yaml_lines = yaml.safe_dump(uninherited_yaml_data,
+                                        encoding='utf-8', allow_unicode=True,
+                                        default_flow_style=False)
 
-        return self.description + DIVIDER_LINE + yaml_lines
+            return self.description + DIVIDER_LINE + yaml_lines
+        else:
+            return self.description
+
 
     @property
     def yaml_data(self):
@@ -235,10 +240,10 @@ class Card(object):
     def checklists(self):
         return self._checklists
 
-    def fill_markup(self, trello, scriptManager):
+    def fill_markup(self, trello, script_manager):
         """ Replace all markup expressions in the card's name and description
         with their values """
-        self.set_name(trello, scriptManager.evaluate_markup(self.name))
+        self.set_name(trello, script_manager.evaluate_markup(self.name))
 
         self.set_description(
-            trello, scriptManager.evaluate_markup(self.full_description))
+            trello, script_manager.evaluate_markup(self.full_description))

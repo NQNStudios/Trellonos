@@ -1,6 +1,7 @@
 import os
 
 from github import Github
+import logtools as log
 
 
 class SecurityException(Exception):
@@ -21,7 +22,7 @@ class GithubManager(object):
         password = os.environ['GITHUB_PASSWORD']
         return cls(username, password)
 
-    def execute_gist(self, scriptManager, id, filename, log, input={},
+    def execute_gist(self, scriptManager, id, filename, input={},
                      continue_on_error=True):
 
         """ Run the Python code contained in the given gist file
@@ -42,7 +43,7 @@ class GithubManager(object):
         # extract the script
         script = gist.files[filename].content
 
-        output = scriptManager.execute(script, log, input, continue_on_error)
+        output = scriptManager.execute(script, input, continue_on_error)
         log.close_context()
 
         return output
