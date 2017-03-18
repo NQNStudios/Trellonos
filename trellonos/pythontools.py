@@ -95,6 +95,8 @@ class ScriptManager(object):
     def evaluate_markup(self, text):
         """ Return the given string with all markup expressions evaluated
         and filled in """
+
+        # Markup expressions are contained in double braces {{ expression }}
         markup_regex = re.compile('\{\{.+\}\}')
 
         for match in re.findall(markup_regex, text):
@@ -105,4 +107,3 @@ class ScriptManager(object):
                         "input['trellonos']." + match[2:-2].strip()))
 
         return text
-

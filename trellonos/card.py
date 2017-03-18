@@ -143,6 +143,11 @@ class Card(object):
 
     def set_name(self, trello, name):
         """ Rename this card. """
+
+        # If this card already has the given name, do nothing
+        if self.name == name:
+            return
+
         # Through the API
         trello.update_card_name(self._card_data, name)
         # In instance fields
@@ -150,6 +155,11 @@ class Card(object):
 
     def set_description(self, trello, full_description):
         """ Gives this card a new description """
+
+        # If this card already has the given description, do nothing
+        if self.full_description == full_description:
+            return
+
         # Change the description through API call
         trello.update_card_description(self._card_data, full_description)
 
@@ -246,4 +256,4 @@ class Card(object):
         self.set_name(trello, script_manager.evaluate_markup(self.name))
 
         self.set_description(
-            trello, script_manager.evaluate_markup(self.full_description))
+            trello, script_manager.evaluate_markup(self.full_description.strip()))
