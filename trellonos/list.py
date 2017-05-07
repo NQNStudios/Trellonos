@@ -97,6 +97,8 @@ class List(object):
             if card.name == name:
                 return card
 
+        return None
+
     def get_cards(self, name):
         """ Returns a list of cards with the given name """
         cards = []
