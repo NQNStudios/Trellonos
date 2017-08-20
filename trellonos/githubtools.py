@@ -14,6 +14,7 @@ class GithubManager(object):
 
     def __init__(self, username, password):
         self.__github = Github(username, password)
+        self._gists = {}
 
     @classmethod
     def from_environment_vars(cls):
@@ -33,8 +34,14 @@ class GithubManager(object):
 
         log.open_context('Script ' + filename + ' from gist ' + id)
 
-        # retrieve the gist
-        gist = self.__github.get_gist(id)
+
+        # retrieve the gist, but don't make redundant API calls
+        gist = None
+        if id in self._gists:
+            gist = self._gists[id]
+        else:
+            gist = self.__github.get_gist(id)
+            self._gists[id] = gist
 
         # security check
         if gist.public:
