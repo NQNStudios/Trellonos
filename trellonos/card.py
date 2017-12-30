@@ -101,15 +101,6 @@ class Card(object):
     def labels(self):
         return self._card_data['labels']
 
-    def add_label(self, trello, name, color):
-        # Check if the board has a label with matching name and color
-        parent_board = self.parent_list.parent_board
-        # If not, add one
-        if not parent_board.has_label(name, color):
-            parent_board.add_label(trello, name, color)
-
-        
-
     @property
     def type_name(self):
         """ The type name of this card (for archetypal inheritance) """

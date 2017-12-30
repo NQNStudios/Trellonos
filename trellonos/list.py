@@ -51,10 +51,6 @@ class List(object):
     def closed_cards(self):
         return self.__closed_cards
 
-    @property
-    def parent_board(self):
-        return self._parent_board
-
     def set_name(self, trello, name):
         """ Rename this list """
         # Through the API

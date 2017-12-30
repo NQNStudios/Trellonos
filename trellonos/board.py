@@ -96,22 +96,6 @@ class Board(object):
     def closed(self):
         return self._board_data['closed']
 
-    @property
-    def labels(self):
-        return self._board_data['labels']
-
-    def has_label(self, name, color):
-        for label in self.labels:
-            if label['name'] == name and label['color'] == color:
-                return True
-
-        return False
-
-    def add_label(self, trello, name, color):
-        label = trello.add_board_label(self._board_data['id'], name, color)
-        self._board_data['labels'].append(label)
-
-
     def archive(self, trello):
         self._board_data['closed'] = True
         trello.update_board_closed(self._board_data, True)
@@ -285,3 +269,4 @@ class Board(object):
         """ Fill all markup expressions in cards contained by this board """
         for name in self.lists:
             self.lists[name].fill_cards_markup(script_manager)
+
