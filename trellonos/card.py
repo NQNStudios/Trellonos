@@ -98,10 +98,6 @@ class Card(object):
                 return dateutil.parser.parse(self._card_data['dateLastActivity'])
 
     @property
-    def labels(self):
-        return self._card_data['labels']
-
-    @property
     def type_name(self):
         """ The type name of this card (for archetypal inheritance) """
         if 'type' not in self._yaml_data:
