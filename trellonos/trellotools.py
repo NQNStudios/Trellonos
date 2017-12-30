@@ -76,6 +76,15 @@ class Trello(object):
 
         return boards
 
+    def add_board_label(self, board_id, name, color):
+        """ Create a new label in a board """
+
+        url = BASE_URL + 'boards/' + board_id + '/labels
+        request = requests.post(url, data=self.request_params({ 'name': name, 'color': color}))
+
+        # Return the output
+        return json.loads(request.text)
+
     # LISTS #
 
     def get_lists(self, board, list_filter=FILTER_OPEN):
@@ -201,6 +210,10 @@ class Trello(object):
 
         # Return the output
         return json.loads(request.text)
+
+    def add_card_label(self, card_id, label_id):
+        url = BASE_URL + 'cards/' + card_id + '/idLabels
+        requests.post(url, data=self.request_params({ 'value': label_id }))
 
     # CHECKLISTS
 
