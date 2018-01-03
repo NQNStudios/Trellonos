@@ -74,6 +74,14 @@ class Card(object):
         return self._card_data
 
     @property
+    def parent_list(self):
+        return self._parent_list
+
+    @property
+    def parent_board(self):
+        return self._parent_list.parent_board
+
+    @property
     def name(self):
         return self._card_data['name']
 

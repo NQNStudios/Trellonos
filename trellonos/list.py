@@ -48,6 +48,10 @@ class List(object):
         return self._cards
 
     @property
+    def parent_board(self):
+        return self._parent_board
+
+    @property
     def closed_cards(self):
         return self.__closed_cards
 
