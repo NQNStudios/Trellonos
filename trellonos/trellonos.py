@@ -21,14 +21,19 @@ class Trellonos(object):
         self._github = github
         self._script_manager = ScriptManager(self)
 
-        if boards_needed[0:10] == 'USE_BACKUP':
+        self._boards_needed = boards_needed
+
+        if boards_needed == 'USE_BACKUP':
             with open(home + '/.lasttrellonos', 'r') as f:
                 self._boards = pickle.load(f)
+
+            self._boards_needed = []
             # Give them all a live trello object
             for board in self._boards:
+                self._boards_needed.append(board)
                 self._boards[board].update_trello_instance(trello)
         else:
-            self.populate_boards(trello, boards_needed, github)
+            self.populate_boards()
             self.serialize_boards()
 
     @classmethod
@@ -41,7 +46,11 @@ class Trellonos(object):
         with open(home + '/.lasttrellonos', 'w+') as f:
             pickle.dump(self._boards, f)
 
-    def populate_boards(self, trello, boards_needed, github):
+    def populate_boards(self):
+        trello = self._trello
+        github = self._github
+        boards_needed = self._boards_needed
+
         self._boards = {}
 
         meta_boards = {}
