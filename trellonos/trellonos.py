@@ -14,47 +14,68 @@ OUTPUT_BOARD_NAME = 'Trellonos Output'
 class Trellonos(object):
     """ Top-level container of Trello data and core processor """
 
-    def __init__(self, trello, github):
+    def __init__(self, trello, boards_needed=[], github=None):
         self._trello = trello
         self._github = github
         self._script_manager = ScriptManager(self)
 
-        self._boards = {}
-
-        meta_boards = {}
-        non_meta_boards = {}
-
-        log.open_context('Trellonos initialization.')
-
-        # Iterate and initialize board objects from subscribed Trello boards
-        for trello_board in trello.get_boards():
-            board_name = trello_board['name']
-
-            # Look for metaboards to find subscribed boards
-            if re.search(TRELLONOS_REGEX, board_name):
-                # Strip board name of tags before mapping
-                board_key = board_name[1:-1]
-
-                meta_boards[board_key] = trello_board
-            else:
-                non_meta_boards[board_name] = trello_board
-
-        # next construct board objects from normal boards and meta counterparts
-        for board_name in meta_boards:
-            normal_board = non_meta_boards[board_name]
-            meta_board = meta_boards[board_name]
-
-            board_object = Board(trello, normal_board, meta_board)
-
-            self._boards[board_name] = board_object
-
-        log.close_context()
+        self.populate_boards(trello, boards_needed, github)
 
     @classmethod
     def from_environment_vars(cls):
         trello = Trello.from_environment_vars()
         github = GithubManager.from_environment_vars()
         return cls(trello, github)
+
+    def populate_boards(self, trello, boards_needed, github):
+        self._boards = {}
+
+        meta_boards = {}
+        non_meta_boards = {}
+
+        log.open_context('Trellonos board population.')
+
+        # Iterate and initialize board objects from subscribed Trello boards
+        for trello_board in trello.get_boards():
+            board_name = trello_board['name']
+
+            # If boards_needed is empty, take all boards. Otherwise,
+            # don't
+
+            # Look for metaboards to find subscribed boards
+            if re.search(TRELLONOS_REGEX, board_name):
+                # Strip board name of tags before mapping
+                board_key = board_name[1:-1]
+
+                if board_key in boards_needed or len(boards_needed) == 0:
+                    meta_boards[board_key] = trello_board
+            else:
+                if board_name in boards_needed or len(boards_needed) == 0:
+                    non_meta_boards[board_name] = trello_board
+
+
+        # first construct processor-enabled board objects from normal boards
+        # and meta counterparts as long as a Github object is provided to
+        # process them
+        if github != None:
+            for board_name in meta_boards:
+                normal_board = non_meta_boards[board_name]
+                meta_board = meta_boards[board_name]
+
+                board_object = Board(trello, normal_board, meta_board)
+
+                self._boards[board_name] = board_object
+
+        # Then construct non-processing boards from leftover normal boards
+        for board_name in non_meta_boards:
+            if board_name not in self._boards:
+                board_object = Board(trello, non_meta_boards[board_name])
+
+                self._boards[board_name] = board_object
+
+        log.close_context()
+
+
 
     @property
     def boards(self):
@@ -70,6 +91,9 @@ class Trellonos(object):
 
     def process(self):
         """ Runs all Trellonos processing of open boards """
+
+        if not self._github:
+            log.message("Can't run Trellonos processing without a Github account")
 
         log.open_context('Trellonos processing.')
 

@@ -44,18 +44,20 @@ class Card(object):
         if not self._yaml_data:
             self._yaml_data = {}  # no null yaml data
 
-    def __init__(self, trello, parent_list, trello_card):
+    def __init__(self, trello, parent_list, trello_card, is_meta):
         """ Constructs a Trellonos wrapper of the given card in the given
         parent list """
         self._trello = trello
         self._parent_list = parent_list
         self._card_data = trello_card
         self._inherited_data = []
+        self._yaml_data = {}
 
         desc = trello_card['desc']  # retrieve full description including yaml
 
-        # Parse the card description in its YAML and markdown parts
-        self.parse_description(desc)
+        if is_meta:
+            # Parse the card description in its YAML and markdown parts
+            self.parse_description(desc)
 
         # Parse any checklists on the card into a dictionary
         checklist_ids = trello_card['idChecklists']

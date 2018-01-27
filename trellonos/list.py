@@ -4,7 +4,7 @@ from card import Card
 
 class List(object):
 
-    def __init__(self, trello, parent_board, trello_list):
+    def __init__(self, trello, parent_board, trello_list, is_meta):
         self._trello = trello
         self._parent_board = parent_board
         self._list_data = trello_list
@@ -15,7 +15,7 @@ class List(object):
         # store contained cards in a list
         for trello_card in trello.get_cards(trello_list):
             # in trellonos form
-            card = Card(trello, self, trello_card)
+            card = Card(trello, self, trello_card, is_meta)
 
             # separated open/closed
             if card.open:

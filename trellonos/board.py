@@ -21,7 +21,7 @@ SPECIAL_META_LISTS = {
 class Board(object):
     """ Wrapper of a Trello board """
 
-    def __init__(self, trello, trello_board, meta_board):
+    def __init__(self, trello, trello_board, meta_board=None):
         self._trello = trello
         self._board_data = trello_board
         self._meta_board = meta_board
@@ -36,9 +36,14 @@ class Board(object):
 
         # retrieve lists in the board
         trello_lists = trello.get_lists(trello_board)
-        meta_lists = trello.get_lists(meta_board)
 
         # First retrieve meta lists
+        meta_lists = []
+        self._is_meta = False
+        if meta_board != None:
+            meta_lists = trello.get_lists(meta_board)
+            self._is_meta = True
+
         for meta_list in meta_lists:
             list_name = meta_list['name']
 
@@ -65,7 +70,7 @@ class Board(object):
         for trello_list in trello_lists:
             list_name = trello_list['name']
 
-            list_object = List(trello, self, trello_list)
+            list_object = List(trello, self, trello_list, self._is_meta)
 
             # if this list has a default type name, apply it
             if self._list_defaults:
@@ -84,6 +89,10 @@ class Board(object):
             # map the list by name
             self._lists[list_name] = list_object
 
+    @property
+    def is_meta(self):
+        return self._is_meta
+ 
     @property
     def name(self):
         return self._board_data['name']
@@ -216,6 +225,10 @@ class Board(object):
 
     def process(self, trellonos, github, script_manager):
         """ Run each of this board's many types of processors """
+        if len(self.meta_lists) == 0:
+            log.message('Board ' + self.name + ' has no meta lists and won\'t be processed.')
+            return
+
         log.open_context('Processing board ' + self.name)
 
         # first, processors of the whole board
