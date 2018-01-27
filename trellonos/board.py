@@ -121,6 +121,13 @@ class Board(object):
     def meta_lists(self):
         return self._meta_lists
 
+    def update_trello_instance(self, trello):
+        self._trello = trello
+        for list in self._lists:
+            self.lists[list]._trello = trello
+            for card in self.lists[list].cards:
+                card._trello = trello
+
     def create_list(self, name):
         """ Creates a list in this board. Adds the list to this
         board's dictionary and returns the Trellonos wrapper object """

@@ -3,9 +3,11 @@ import re
 from trellotools import Trello
 from githubtools import GithubManager
 from pythontools import ScriptManager
+import pickle
 import logtools as log
 from board import Board
-
+from os.path import expanduser
+home = expanduser("~")
 
 TRELLONOS_REGEX = re.compile('^<.+>$')
 OUTPUT_BOARD_NAME = 'Trellonos Output'
@@ -19,13 +21,25 @@ class Trellonos(object):
         self._github = github
         self._script_manager = ScriptManager(self)
 
-        self.populate_boards(trello, boards_needed, github)
+        if boards_needed[0:10] == 'USE_BACKUP':
+            with open(home + '/.lasttrellonos', 'r') as f:
+                self._boards = pickle.load(f)
+            # Give them all a live trello object
+            for board in self._boards:
+                self._boards[board].update_trello_instance(trello)
+        else:
+            self.populate_boards(trello, boards_needed, github)
+            self.serialize_boards()
 
     @classmethod
     def from_environment_vars(cls):
         trello = Trello.from_environment_vars()
         github = GithubManager.from_environment_vars()
         return cls(trello, github)
+
+    def serialize_boards(self):
+        with open(home + '/.lasttrellonos', 'w+') as f:
+            pickle.dump(self._boards, f)
 
     def populate_boards(self, trello, boards_needed, github):
         self._boards = {}
