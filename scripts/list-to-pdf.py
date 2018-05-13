@@ -1,5 +1,6 @@
+#! /usr/bin/env python
 # USAGE SYNTAX:
-#  trello-print [list-id]
+#  list-to-pdf.py [list-id]
 
 # DEPENDENCIES:
 #  * Reportlab toolkit

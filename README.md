@@ -5,9 +5,11 @@ Python scripts designed for automated execution with Cron to manage Trello sched
 
 **Dependencies**
 
+On some systems you may need to run:
+
 ```
-pip install trello
-pip install PyGithub
-pip install PyYAML
-pip install python-dateutil
+sudo apt-get install python-dev
+sudo apt-get install zlib1g-dev libpng-dev libjpeg-dev
 ```
+
+before running `python setup.py install`
